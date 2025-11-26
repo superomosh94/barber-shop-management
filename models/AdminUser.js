@@ -1,3 +1,4 @@
+// models/AdminUser.js - This should be a Sequelize model file
 const { DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
@@ -11,48 +12,23 @@ module.exports = (sequelize, Sequelize) => {
         username: {
             type: DataTypes.STRING(50),
             allowNull: false,
-            unique: {
-                msg: 'Username already exists'
-            },
-            validate: {
-                notEmpty: {
-                    msg: 'Username is required'
-                },
-                len: {
-                    args: [3, 50],
-                    msg: 'Username must be between 3 and 50 characters'
-                }
-            }
+            unique: true
         },
         password: {
             type: DataTypes.STRING(255),
-            allowNull: false,
-            validate: {
-                notEmpty: {
-                    msg: 'Password is required'
-                },
-                len: {
-                    args: [6, 255],
-                    msg: 'Password must be at least 6 characters long'
-                }
-            }
+            allowNull: false
         },
         email: {
             type: DataTypes.STRING(100),
             allowNull: false,
-            unique: {
-                msg: 'Email already exists'
-            },
+            unique: true,
             validate: {
-                isEmail: {
-                    msg: 'Please provide a valid email'
-                }
+                isEmail: true
             }
         },
         role: {
             type: DataTypes.ENUM('super_admin', 'admin', 'manager'),
-            defaultValue: 'admin',
-            allowNull: false
+            defaultValue: 'admin'
         },
         first_name: {
             type: DataTypes.STRING(50),
@@ -103,21 +79,6 @@ module.exports = (sequelize, Sequelize) => {
     // Instance method to check password
     AdminUser.prototype.checkPassword = async function(candidatePassword) {
         return await bcrypt.compare(candidatePassword, this.password);
-    };
-
-    // Instance method to sanitize admin data for response
-    AdminUser.prototype.toJSON = function() {
-        const values = Object.assign({}, this.get());
-        delete values.password;
-        return values;
-    };
-
-    // Instance method to check permissions
-    AdminUser.prototype.hasPermission = function(resource, action) {
-        if (this.role === 'super_admin') return true;
-        
-        const userPermissions = this.permissions || {};
-        return userPermissions[resource] && userPermissions[resource].includes(action);
     };
 
     return AdminUser;

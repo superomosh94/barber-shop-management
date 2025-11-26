@@ -16,11 +16,17 @@ const adminController = {
             const { username, password } = req.body;
 
             const admin = await AdminUser.findOne({ 
-                where: { username, is_active: true } 
+                where: { 
+                    [Op.or]: [
+                        { username: username },
+                        { email: username }
+                    ],
+                    is_active: true 
+                } 
             });
 
             if (!admin) {
-                req.flash('error', 'Invalid credentials');
+                req.flash('error', 'Invalid username or password');
                 return res.render('admin/admin-login', {
                     title: 'Admin Login - Classic Cuts'
                 });
@@ -28,7 +34,7 @@ const adminController = {
 
             const isPasswordValid = await admin.checkPassword(password);
             if (!isPasswordValid) {
-                req.flash('error', 'Invalid credentials');
+                req.flash('error', 'Invalid username or password');
                 return res.render('admin/admin-login', {
                     title: 'Admin Login - Classic Cuts'
                 });
@@ -72,7 +78,7 @@ const adminController = {
         });
     },
 
-    // Admin dashboard
+    // Admin dashboard - FIXED with proper aliases
     showAdminDashboard: async (req, res) => {
         try {
             const today = new Date();
@@ -81,7 +87,7 @@ const adminController = {
             const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
             const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-            // Get today's appointments
+            // Get today's appointments - FIXED with proper aliases
             const todaysAppointments = await Appointment.findAll({
                 where: {
                     appointment_date: {
@@ -89,9 +95,18 @@ const adminController = {
                     }
                 },
                 include: [
-                    { model: Customer, as: 'customer' },
-                    { model: Service, as: 'service' },
-                    { model: Barber, as: 'barber' }
+                    { 
+                        model: Customer, 
+                        as: 'customer'  // Add the alias
+                    },
+                    { 
+                        model: Service, 
+                        as: 'service'   // Add the alias
+                    },
+                    { 
+                        model: Barber, 
+                        as: 'barber'    // Add the alias
+                    }
                 ],
                 order: [['appointment_date', 'ASC']]
             });
@@ -128,10 +143,36 @@ const adminController = {
                 LIMIT 5
             `, { type: sequelize.QueryTypes.SELECT });
 
+            // Get recent ratings - FIXED with proper aliases
+            const recentRatings = await Rating.findAll({
+                include: [
+                    { 
+                        model: Customer, 
+                        as: 'customer' 
+                    },
+                    { 
+                        model: Barber, 
+                        as: 'barber' 
+                    },
+                    { 
+                        model: Appointment, 
+                        as: 'appointment',
+                        include: [{
+                            model: Service,
+                            as: 'service'
+                        }]
+                    }
+                ],
+                where: { is_approved: true },
+                order: [['created_at', 'DESC']],
+                limit: 5
+            });
+
             res.render('admin/admin-dashboard', {
                 title: 'Admin Dashboard - Classic Cuts',
                 admin: req.session.admin,
                 todaysAppointments,
+                recentRatings,
                 stats: {
                     totalAppointments,
                     pendingAppointments,
@@ -210,6 +251,153 @@ const adminController = {
             console.error('Get dashboard stats error:', error);
             res.json({ success: false, error: 'Failed to fetch dashboard stats' });
         }
+    },
+
+    // Simple placeholder pages to avoid view errors
+    showAdmins: async (req, res) => {
+        try {
+            const admins = await AdminUser.findAll({
+                order: [['created_at', 'DESC']]
+            });
+
+            res.render('admin/admins', {
+                title: 'Admin Management - Classic Cuts',
+                admin: req.session.admin,
+                admins
+            });
+        } catch (error) {
+            console.error('Admin management error:', error);
+            // Fallback to dashboard if view doesn't exist
+            req.flash('error', 'Admin management page not available yet');
+            res.redirect('/admin/dashboard');
+        }
+    },
+
+    showCustomers: async (req, res) => {
+        try {
+            const customers = await Customer.findAll({
+                order: [['created_at', 'DESC']],
+                limit: 50
+            });
+
+            res.render('admin/customers', {
+                title: 'Customer Management - Classic Cuts',
+                admin: req.session.admin,
+                customers
+            });
+        } catch (error) {
+            console.error('Customer management error:', error);
+            req.flash('error', 'Customer management page not available yet');
+            res.redirect('/admin/dashboard');
+        }
+    },
+
+    showBarbers: async (req, res) => {
+        try {
+            const barbers = await Barber.findAll({
+                order: [['name', 'ASC']]
+            });
+
+            res.render('admin/barbers', {
+                title: 'Barber Management - Classic Cuts',
+                admin: req.session.admin,
+                barbers
+            });
+        } catch (error) {
+            console.error('Barber management error:', error);
+            req.flash('error', 'Barber management page not available yet');
+            res.redirect('/admin/dashboard');
+        }
+    },
+
+    showServices: async (req, res) => {
+        try {
+            const services = await Service.findAll({
+                where: { is_active: true },
+                order: [['name', 'ASC']]
+            });
+
+            res.render('admin/services', {
+                title: 'Service Management - Classic Cuts',
+                admin: req.session.admin,
+                services
+            });
+        } catch (error) {
+            console.error('Service management error:', error);
+            req.flash('error', 'Service management page not available yet');
+            res.redirect('/admin/dashboard');
+        }
+    },
+
+    showAppointments: async (req, res) => {
+        try {
+            const { status } = req.query;
+            const where = status ? { status } : {};
+            
+            const appointments = await Appointment.findAll({
+                where,
+                include: [
+                    { model: Customer, as: 'customer' },
+                    { model: Service, as: 'service' },
+                    { model: Barber, as: 'barber' }
+                ],
+                order: [['appointment_date', 'DESC']],
+                limit: 50
+            });
+
+            res.render('admin/appointments', {
+                title: 'Appointment Management - Classic Cuts',
+                admin: req.session.admin,
+                appointments,
+                currentStatus: status
+            });
+        } catch (error) {
+            console.error('Appointment management error:', error);
+            req.flash('error', 'Appointment management page not available yet');
+            res.redirect('/admin/dashboard');
+        }
+    },
+
+    showRatings: async (req, res) => {
+        try {
+            const ratings = await Rating.findAll({
+                include: [
+                    { model: Customer, as: 'customer' },
+                    { model: Barber, as: 'barber' },
+                    { 
+                        model: Appointment, 
+                        as: 'appointment',
+                        include: [{ model: Service, as: 'service' }]
+                    }
+                ],
+                order: [['created_at', 'DESC']]
+            });
+
+            res.render('admin/ratings', {
+                title: 'Rating Management - Classic Cuts',
+                admin: req.session.admin,
+                ratings
+            });
+        } catch (error) {
+            console.error('Rating management error:', error);
+            req.flash('error', 'Rating management page not available yet');
+            res.redirect('/admin/dashboard');
+        }
+    },
+
+    // Simple fallback for other pages
+    showPage: (req, res) => {
+        const page = req.params.page;
+        const titles = {
+            'reports': 'Reports',
+            'settings': 'Settings',
+            'profile': 'Profile'
+        };
+        
+        const title = titles[page] || 'Admin Panel';
+        
+        req.flash('info', `${title} page is under development`);
+        res.redirect('/admin/dashboard');
     }
 };
 

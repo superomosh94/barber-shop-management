@@ -1,0 +1,202 @@
+<%- include('../partials/header', { title: 'My Profile - Classic Cuts' }) %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">My Profile</h1>
+            <a href="/customer/dashboard" class="btn btn-outline">← Back to Dashboard</a>
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <div class="avatar-placeholder">
+                            <%= user.name.split(' ').map(n => n[0]).join('') %>
+                        </div>
+                    </div>
+                    <div class="profile-info">
+                        <h2 class="profile-name"><%= user.name %></h2>
+                        <p class="profile-email"><%= user.email %></p>
+                        <p class="profile-member-since">
+                            Member since <%= customer ? new Date(customer.created_at).toLocaleDateString() : 'Recently' %>
+                        </p>
+                    </div>
+                </div>
+
+                <form action="/customer/profile" method="POST" class="profile-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" id="name" name="name" class="form-control" 
+                                   value="<%= customer ? customer.name : user.name %>" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" id="email" class="form-control" 
+                                   value="<%= customer ? customer.email : user.email %>" disabled>
+                            <small class="form-help">Email cannot be changed</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" class="form-control" 
+                                   value="<%= customer ? customer.phone : user.phone %>">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="/customer/dashboard" class="btn btn-outline">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="profile-actions">
+                <div class="action-card">
+                    <h3 class="card-title">Account Actions</h3>
+                    <div class="action-buttons">
+                        <a href="/customer/change-password" class="btn btn-outline">Change Password</a>
+                        <a href="/customer/appointments" class="btn btn-outline">View Appointment History</a>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <h3 class="card-title">Your Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-number"><%= stats ? stats.totalAppointments : 0 %></span>
+                            <span class="stat-label">Total Appointments</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number"><%= stats ? stats.completedAppointments : 0 %></span>
+                            <span class="stat-label">Completed</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number"><%= stats ? stats.pendingRatings : 0 %></span>
+                            <span class="stat-label">Pending Ratings</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<style>
+.profile-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.profile-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.profile-email {
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.profile-member-since {
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.form-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.stats-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1d4ed8;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<%- include('../partials/footer') %>
