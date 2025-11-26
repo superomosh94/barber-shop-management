@@ -1,0 +1,434 @@
+/* Responsive design adjustments */
+
+@media (max-width: 1200px) {
+    .container {
+        max-width: 100%;
+        padding: 0 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+    
+    /* Navigation */
+    .nav-menu {
+        position: fixed;
+        top: 4rem;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        display: none;
+        z-index: 1000;
+    }
+
+    .nav-menu.active {
+        display: flex;
+    }
+
+    .nav-toggle {
+        display: flex;
+    }
+
+    .nav-toggle.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .nav-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .nav-toggle.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -6px);
+    }
+
+    /* Hero Section */
+    .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
+    }
+
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-description {
+        font-size: 1.125rem;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-stats {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* Services and Barbers Grid */
+    .services-grid,
+    .barbers-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .services-grid {
+        gap: 1rem;
+    }
+
+    /* Dashboard */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    /* Forms */
+    .booking-form .form-step {
+        padding: 1.5rem;
+    }
+
+    .services-selection,
+    .barbers-selection {
+        grid-template-columns: 1fr;
+    }
+
+    .time-slots {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .step-actions {
+        flex-direction: column;
+    }
+
+    /* Appointment Details */
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* Footer */
+    .footer-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    /* Auth Pages */
+    .auth-container {
+        padding: 1rem;
+    }
+
+    .auth-card {
+        padding: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 0.5rem;
+    }
+
+    /* Typography */
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    /* Stats */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+
+    /* Cards */
+    .service-card,
+    .barber-card,
+    .appointment-card {
+        padding: 1rem;
+    }
+
+    .service-card.detailed,
+    .barber-card.detailed {
+        padding: 1rem;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.8rem;
+    }
+
+    .btn-large {
+        padding: 0.875rem 1.5rem;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        padding: 2rem 0;
+    }
+
+    .hero-title {
+        font-size: 1.75rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .hero-stats {
+        gap: 1rem;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+
+    /* Time Slots */
+    .time-slots {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Appointment Items */
+    .appointment-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .item-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-right: 0;
+    }
+
+    .item-actions {
+        align-self: stretch;
+        justify-content: space-between;
+    }
+
+    /* Flash Messages */
+    .flash-messages {
+        left: 0.5rem;
+        right: 0.5rem;
+        max-width: none;
+    }
+
+    .flash-message {
+        padding: 0.75rem 1rem;
+    }
+
+    /* Detail Pages */
+    .detail-card {
+        padding: 1rem;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+    }
+
+    /* Quick Actions */
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-card {
+        padding: 1.5rem;
+    }
+
+    /* Forms */
+    .form-step {
+        padding: 1rem;
+    }
+
+    .option-card {
+        padding: 1rem;
+    }
+
+    .barber-option .option-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    /* Rating Form */
+    .rating-card {
+        padding: 1.5rem;
+    }
+
+    .star-rating label {
+        font-size: 1.5rem;
+    }
+}
+
+/* Tablet Landscape */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .barbers-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+/* High-resolution displays */
+@media (min-resolution: 192dpi) {
+    .hero-section {
+        background-attachment: fixed;
+    }
+}
+
+/* Print styles */
+@media print {
+    .navbar,
+    .footer,
+    .btn,
+    .hero-actions,
+    .appointment-actions,
+    .action-buttons {
+        display: none !important;
+    }
+
+    .container {
+        max-width: none;
+        padding: 0;
+    }
+
+    .main-content {
+        padding: 0;
+    }
+
+    .page-title {
+        color: black;
+        font-size: 18pt;
+    }
+
+    .appointment-card,
+    .detail-card {
+        border: 1px solid #000;
+        box-shadow: none;
+        break-inside: avoid;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-color: #0f172a;
+        --surface-color: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+        --border-color: #334155;
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: var(--text-primary);
+    }
+
+    .service-card,
+    .barber-card,
+    .appointment-card,
+    .detail-card,
+    .auth-card,
+    .booking-form,
+    .rating-card,
+    .stat-card,
+    .dashboard-section,
+    .action-card {
+        background: var(--surface-color);
+        color: var(--text-primary);
+    }
+
+    .form-control {
+        background: var(--background-color);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none;
+    }
+
+    .service-card:hover,
+    .barber-card:hover,
+    .appointment-card:hover,
+    .action-card:hover {
+        transform: none;
+    }
+
+    .nav-link:hover::after {
+        display: none;
+    }
+
+    /* Increase touch target sizes */
+    .btn,
+    .nav-link,
+    .time-slot,
+    .service-option,
+    .barber-option {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .flash-close {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}

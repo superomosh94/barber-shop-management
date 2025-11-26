@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'Admin Dashboard - Classic Cuts' %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <div class="admin-header-container">
+            <div class="admin-logo">
+                <span class="logo-icon">✂️</span>
+                <span class="logo-text">Classic Cuts Admin</span>
+            </div>
+            
+            <div class="admin-user">
+                <span class="user-greeting">Hello, <%= admin.first_name || admin.username %></span>
+                <div class="user-dropdown">
+                    <a href="/admin/profile" class="dropdown-link">Profile</a>
+                    <form action="/admin/logout" method="POST" class="logout-form">
+                        <button type="submit" class="dropdown-link logout-btn">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <nav class="admin-nav">
+                <a href="/admin/dashboard" class="nav-link active">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="/admin/appointments" class="nav-link">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-text">Appointments</span>
+                </a>
+                <a href="/admin/services" class="nav-link">
+                    <span class="nav-icon">💇</span>
+                    <span class="nav-text">Services</span>
+                </a>
+                <a href="/admin/barbers" class="nav-link">
+                    <span class="nav-icon">👨‍💼</span>
+                    <span class="nav-text">Barbers</span>
+                </a>
+                <a href="/admin/customers" class="nav-link">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Customers</span>
+                </a>
+                <a href="/admin/ratings" class="nav-link">
+                    <span class="nav-icon">⭐</span>
+                    <span class="nav-text">Ratings</span>
+                </a>
+                <a href="/admin/reports" class="nav-link">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Reports</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Flash Messages -->
+            <%- include('../partials/flash-messages') %>
+
+            <div class="admin-content">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard Overview</h1>
+                    <p class="page-description">Welcome to your admin dashboard</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon primary">📅</div>
+                        <div class="stat-info">
+                            <div class="stat-number"><%= stats.totalAppointments %></div>
+                            <div class="stat-label">Total Appointments</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning">⏳</div>
+                        <div class="stat-info">
+                            <div class="stat-number"><%= stats.pendingAppointments %></div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-number"><%= stats.totalCustomers %></div>
+                            <div class="stat-label">Customers</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon info">👨‍💼</div>
+                        <div class="stat-info">
+                            <div class="stat-number"><%= stats.totalBarbers %></div>
+                            <div class="stat-label">Barbers</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card revenue">
+                            <div class="stat-icon success">💰</div>
+                            <div class="stat-info">
+                                <div class="stat-number">$<%= stats.totalRevenue %></div>
+                                <div class="stat-label">Total Revenue</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card revenue">
+                            <div class="stat-icon info">📈</div>
+                            <div class="stat-info">
+                                <div class="stat-number">$<%= stats.weeklyRevenue %></div>
+                                <div class="stat-label">Weekly Revenue</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Today's Appointments -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Today's Appointments</h2>
+                            <span class="section-badge"><%= todaysAppointments.length %></span>
+                        </div>
+                        
+                        <% if (todaysAppointments.length > 0) { %>
+                            <div class="appointments-table">
+                                <div class="table-header">
+                                    <div class="table-row">
+                                        <div class="table-cell">Time</div>
+                                        <div class="table-cell">Customer</div>
+                                        <div class="table-cell">Service</div>
+                                        <div class="table-cell">Barber</div>
+                                        <div class="table-cell">Status</div>
+                                        <div class="table-cell">Actions</div>
+                                    </div>
+                                </div>
+                                <div class="table-body">
+                                    <% todaysAppointments.forEach(appointment => { %>
+                                        <div class="table-row">
+                                            <div class="table-cell time">
+                                                <%= moment(appointment.appointment_date).format('h:mm A') %>
+                                            </div>
+                                            <div class="table-cell customer">
+                                                <%= appointment.customer.name %>
+                                            </div>
+                                            <div class="table-cell service">
+                                                <%= appointment.service.name %>
+                                            </div>
+                                            <div class="table-cell barber">
+                                                <%= appointment.barber.name %>
+                                            </div>
+                                            <div class="table-cell status">
+                                                <span class="status-badge <%= appointment.status %>">
+                                                    <%= appointment.status %>
+                                                </span>
+                                            </div>
+                                            <div class="table-cell actions">
+                                                <button class="btn-action" title="View Details">
+                                                    👁️
+                                                </button>
+                                                <% if (appointment.status === 'pending') { %>
+                                                    <button class="btn-action success" title="Confirm">
+                                                        ✓
+                                                    </button>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <div class="empty-icon">📅</div>
+                                <h3>No Appointments Today</h3>
+                                <p>There are no appointments scheduled for today.</p>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- Popular Services -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Popular Services</h2>
+                        </div>
+                        
+                        <% if (popularServices && popularServices.length > 0) { %>
+                            <div class="services-list">
+                                <% popularServices.forEach(service => { %>
+                                    <div class="service-item">
+                                        <div class="service-info">
+                                            <h4 class="service-name"><%= service.name %></h4>
+                                            <span class="service-count">
+                                                <%= service.appointment_count %> appointments
+                                            </span>
+                                        </div>
+                                        <div class="service-actions">
+                                            <span class="service-price">$<%= service.price %></span>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <div class="empty-state small">
+                                <div class="empty-icon">💇</div>
+                                <h4>No Service Data</h4>
+                                <p>Service popularity data will appear here.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions admin-actions">
+                    <h3 class="section-title">Quick Actions</h3>
+                    <div class="actions-grid">
+                        <a href="/admin/appointments" class="action-card">
+                            <div class="action-icon">📅</div>
+                            <h4>Manage Appointments</h4>
+                            <p>View and manage all appointments</p>
+                        </a>
+                        <a href="/admin/services" class="action-card">
+                            <div class="action-icon">💇</div>
+                            <h4>Manage Services</h4>
+                            <p>Add or edit services</p>
+                        </a>
+                        <a href="/admin/barbers" class="action-card">
+                            <div class="action-icon">👨‍💼</div>
+                            <h4>Manage Barbers</h4>
+                            <p>View and manage barber team</p>
+                        </a>
+                        <a href="/admin/customers" class="action-card">
+                            <div class="action-icon">👥</div>
+                            <h4>View Customers</h4>
+                            <p>Browse customer database</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/admin-dashboard.js"></script>
+</body>
+</html>

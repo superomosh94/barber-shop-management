@@ -1,0 +1,77 @@
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo">
+            <a href="/" class="logo-link">
+                <span class="logo-icon">✂️</span>
+                <span class="logo-text">Classic Cuts</span>
+            </a>
+        </div>
+        
+        <div class="nav-menu" id="navMenu">
+            <a href="/" class="nav-link <%= currentUrl === '/' ? 'active' : '' %>">Home</a>
+            <a href="/services" class="nav-link <%= currentUrl.includes('/services') ? 'active' : '' %>">Services</a>
+            <a href="/barbers" class="nav-link <%= currentUrl.includes('/barbers') ? 'active' : '' %>">Our Barbers</a>
+            
+            <% if (user) { %>
+                <a href="/customer/dashboard" class="nav-link <%= currentUrl.includes('/customer') ? 'active' : '' %>">Dashboard</a>
+                <a href="/appointments/book" class="nav-link btn-book">Book Now</a>
+                <div class="nav-user">
+                    <span class="user-greeting">Hello, <%= user.name %></span>
+                    <div class="user-dropdown">
+                        <a href="/customer/profile" class="dropdown-link">Profile</a>
+                        <a href="/customer/appointments" class="dropdown-link">My Appointments</a>
+                        <form action="/logout" method="POST" class="logout-form">
+                            <button type="submit" class="dropdown-link logout-btn">Logout</button>
+                        </form>
+                    </div>
+                </div>
+            <% } else { %>
+                <a href="/appointments/book" class="nav-link btn-book">Book Now</a>
+                <div class="nav-auth">
+                    <a href="/login" class="nav-link">Login</a>
+                    <a href="/register" class="nav-link btn-register">Sign Up</a>
+                </div>
+            <% } %>
+        </div>
+        
+        <div class="nav-toggle" id="navToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const navToggle = document.getElementById('navToggle');
+    const navMenu = document.getElementById('navMenu');
+    
+    if (navToggle && navMenu) {
+        navToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+            navToggle.classList.toggle('active');
+        });
+    }
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const userDropdowns = document.querySelectorAll('.user-dropdown');
+        userDropdowns.forEach(dropdown => {
+            if (!dropdown.parentElement.contains(event.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+    });
+    
+    // User dropdown toggle
+    const userElements = document.querySelectorAll('.nav-user');
+    userElements.forEach(user => {
+        user.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = this.querySelector('.user-dropdown');
+            dropdown.classList.toggle('active');
+        });
+    });
+});
+</script>

@@ -1,0 +1,152 @@
+<%- include('../partials/header', { title: 'Appointment Details - Classic Cuts' }) %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Appointment Details</h1>
+            <a href="/customer/dashboard" class="btn btn-outline">← Back to Dashboard</a>
+        </div>
+
+        <% if (appointment) { %>
+            <div class="appointment-detail-container">
+                <!-- Appointment Information -->
+                <div class="detail-card">
+                    <h2 class="card-title">Appointment Information</h2>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="label">Service</span>
+                            <span class="value"><%= appointment.service.name %></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Barber</span>
+                            <span class="value"><%= appointment.barber.name %></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Date & Time</span>
+                            <span class="value">
+                                <%= moment(appointment.appointment_date).format('dddd, MMMM D, YYYY [at] h:mm A') %>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Duration</span>
+                            <span class="value"><%= appointment.service.duration %> minutes</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Status</span>
+                            <span class="value status-badge <%= appointment.status %>">
+                                <%= appointment.status %>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Total Price</span>
+                            <span class="value price">$<%= appointment.total_price %></span>
+                        </div>
+                        <% if (appointment.notes) { %>
+                            <div class="detail-item full">
+                                <span class="label">Notes</span>
+                                <span class="value"><%= appointment.notes %></span>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Rating Information -->
+                <% if (appointment.rating) { %>
+                    <div class="detail-card">
+                        <h2 class="card-title">Your Rating</h2>
+                        <div class="rating-display">
+                            <div class="rating-stars">
+                                <% for (let i = 1; i <= 5; i++) { %>
+                                    <span class="star <%= i <= appointment.rating.rating ? 'filled' : '' %>">★</span>
+                                <% } %>
+                            </div>
+                            <div class="rating-meta">
+                                <span class="rating-value"><%= appointment.rating.rating %>/5</span>
+                                <span class="rating-date">
+                                    Rated on <%= moment(appointment.rating.created_at).format('MMM D, YYYY') %>
+                                </span>
+                            </div>
+                            <% if (appointment.rating.review) { %>
+                                <div class="rating-review">
+                                    <p>"<%= appointment.rating.review %>"</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                <% } else if (appointment.status === 'completed' && appointment.canBeRated && appointment.canBeRated()) { %>
+                    <div class="detail-card">
+                        <h2 class="card-title">Rate Your Experience</h2>
+                        <p>How was your service with <%= appointment.barber.name %>?</p>
+                        <a href="/ratings/<%= appointment.id %>/rate" class="btn btn-primary">
+                            Rate This Appointment
+                        </a>
+                    </div>
+                <% } %>
+
+                <!-- Actions -->
+                <div class="action-card">
+                    <h3 class="card-title">Appointment Actions</h3>
+                    <div class="action-buttons">
+                        <% if ((appointment.status === 'pending' || appointment.status === 'confirmed') && appointment.canBeCancelled && appointment.canBeCancelled()) { %>
+                            <form action="/appointments/<%= appointment.id %>/cancel" method="POST" class="action-form">
+                                <button type="submit" class="btn btn-danger" 
+                                        onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                    Cancel Appointment
+                                </button>
+                            </form>
+                            
+                            <button type="button" class="btn btn-outline" onclick="showRescheduleForm()">
+                                Reschedule
+                            </button>
+                        <% } %>
+                        
+                        <a href="/appointments/book?service=<%= appointment.service_id %>&barber=<%= appointment.barber_id %>" 
+                           class="btn btn-primary">
+                            Book Similar Appointment
+                        </a>
+                    </div>
+
+                    <!-- Reschedule Form (Hidden by default) -->
+                    <div id="rescheduleForm" class="reschedule-form" style="display: none;">
+                        <h4>Reschedule Appointment</h4>
+                        <form action="/appointments/<%= appointment.id %>/reschedule" method="POST">
+                            <div class="form-group">
+                                <label for="new_date" class="form-label">New Date & Time</label>
+                                <input type="datetime-local" id="new_date" name="new_date" 
+                                       class="form-control" required 
+                                       min="<%= new Date().toISOString().slice(0, 16) %>">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-outline" onclick="hideRescheduleForm()">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    Confirm Reschedule
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">❌</div>
+                <h3>Appointment Not Found</h3>
+                <p>The requested appointment could not be found.</p>
+                <a href="/customer/dashboard" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+        <% } %>
+    </div>
+</main>
+
+<script>
+function showRescheduleForm() {
+    document.getElementById('rescheduleForm').style.display = 'block';
+}
+
+function hideRescheduleForm() {
+    document.getElementById('rescheduleForm').style.display = 'none';
+}
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,58 @@
+<%- include('../partials/header', { title: 'Our Barbers - Classic Cuts' }) %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Meet Our Barbers</h1>
+            <p class="page-description">
+                Our team of skilled professionals is dedicated to giving you the perfect grooming experience
+            </p>
+        </div>
+
+        <% if (barbers && barbers.length > 0) { %>
+            <div class="barbers-grid detailed">
+                <% barbers.forEach(barber => { %>
+                    <div class="barber-card detailed">
+                        <div class="barber-image">
+                            <div class="barber-avatar large">
+                                <%= barber.name.split(' ').map(n => n[0]).join('') %>
+                            </div>
+                        </div>
+                        <div class="barber-info">
+                            <h3 class="barber-name"><%= barber.name %></h3>
+                            <% if (barber.specialty) { %>
+                                <p class="barber-specialty"><%= barber.specialty %></p>
+                            <% } %>
+                            <% if (barber.bio) { %>
+                                <p class="barber-bio"><%= barber.bio %></p>
+                            <% } %>
+                            <div class="barber-stats">
+                                <% if (barber.experience) { %>
+                                    <span class="stat">🎓 <%= barber.experience %> years exp</span>
+                                <% } %>
+                                <span class="stat">⭐ <%= barber.averageRating || '0.0' %> rating</span>
+                                <span class="stat">👥 <%= barber.totalRatings || 0 %> reviews</span>
+                            </div>
+                            <div class="barber-actions">
+                                <a href="/barbers/<%= barber.id %>" class="btn btn-outline btn-small">
+                                    View Profile
+                                </a>
+                                <a href="/appointments/book?barber=<%= barber.id %>" class="btn btn-primary btn-small">
+                                    Book Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">👨‍💼</div>
+                <h3>No Barbers Available</h3>
+                <p>Please check back later for our barber team information.</p>
+            </div>
+        <% } %>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

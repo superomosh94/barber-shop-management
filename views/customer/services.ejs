@@ -1,0 +1,52 @@
+<%- include('../partials/header', { title: 'Our Services - Classic Cuts' }) %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Our Services</h1>
+            <p class="page-description">
+                Discover our comprehensive range of barbering services, from classic cuts to premium treatments
+            </p>
+        </div>
+
+        <% if (servicesByCategory) { %>
+            <% for (const category in servicesByCategory) { %>
+                <section class="category-section">
+                    <h2 class="category-title">
+                        <%= category.charAt(0).toUpperCase() + category.slice(1) %> Services
+                    </h2>
+                    <div class="services-grid">
+                        <% servicesByCategory[category].forEach(service => { %>
+                            <div class="service-card detailed">
+                                <div class="service-header">
+                                    <h3 class="service-name"><%= service.name %></h3>
+                                    <div class="service-price">$<%= service.price %></div>
+                                </div>
+                                <% if (service.description) { %>
+                                    <p class="service-description"><%= service.description %></p>
+                                <% } %>
+                                <div class="service-meta">
+                                    <span class="service-duration">⏱️ <%= service.duration %> min</span>
+                                    <span class="service-category"><%= service.category %></span>
+                                </div>
+                                <div class="service-actions">
+                                    <a href="/appointments/book?service=<%= service.id %>" class="btn btn-primary btn-small">
+                                        Book Now
+                                    </a>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </section>
+            <% } %>
+        <% } else { %>
+            <div class="empty-state">
+                <div class="empty-icon">💇</div>
+                <h3>No Services Available</h3>
+                <p>Please check back later for our service offerings.</p>
+            </div>
+        <% } %>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

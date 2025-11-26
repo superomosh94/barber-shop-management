@@ -1,0 +1,176 @@
+<%- include('../partials/header', { title: 'My Dashboard - Classic Cuts' }) %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1 class="page-title">Welcome back, <%= user.name %>! 👋</h1>
+            <p class="page-description">Here's your appointment overview and recent activity</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon primary">📅</div>
+                <div class="stat-info">
+                    <div class="stat-number"><%= stats.totalAppointments %></div>
+                    <div class="stat-label">Total Appointments</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success">✅</div>
+                <div class="stat-info">
+                    <div class="stat-number"><%= stats.completedAppointments %></div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning">⭐</div>
+                <div class="stat-info">
+                    <div class="stat-number"><%= stats.pendingRatings %></div>
+                    <div class="stat-label">Pending Ratings</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-action">
+                    <a href="/appointments/book" class="btn btn-primary">Book New Appointment</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Upcoming Appointments -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">Upcoming Appointments</h2>
+                    <a href="/customer/appointments" class="section-link">View All</a>
+                </div>
+                
+                <% if (upcomingAppointments && upcomingAppointments.length > 0) { %>
+                    <div class="appointments-list">
+                        <% upcomingAppointments.forEach(appointment => { %>
+                            <div class="appointment-card">
+                                <div class="appointment-header">
+                                    <h3 class="service-name"><%= appointment.service.name %></h3>
+                                    <span class="status-badge <%= appointment.status %>">
+                                        <%= appointment.status %>
+                                    </span>
+                                </div>
+                                <div class="appointment-details">
+                                    <div class="detail">
+                                        <span class="label">Barber:</span>
+                                        <span class="value"><%= appointment.barber.name %></span>
+                                    </div>
+                                    <div class="detail">
+                                        <span class="label">Date & Time:</span>
+                                        <span class="value">
+                                            <%= moment(appointment.appointment_date).format('MMM D, YYYY [at] h:mm A') %>
+                                        </span>
+                                    </div>
+                                    <div class="detail">
+                                        <span class="label">Duration:</span>
+                                        <span class="value"><%= appointment.service.duration %> minutes</span>
+                                    </div>
+                                    <div class="detail">
+                                        <span class="label">Total:</span>
+                                        <span class="value">$<%= appointment.total_price %></span>
+                                    </div>
+                                </div>
+                                <div class="appointment-actions">
+                                    <a href="/appointments/<%= appointment.id %>" class="btn btn-outline btn-small">
+                                        View Details
+                                    </a>
+                                    <% if (appointment.status === 'pending' || appointment.status === 'confirmed') { %>
+                                        <% if (appointment.canBeCancelled && appointment.canBeCancelled()) { %>
+                                            <form action="/appointments/<%= appointment.id %>/cancel" method="POST" class="inline-form">
+                                                <button type="submit" class="btn btn-danger btn-small" 
+                                                        onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                                    Cancel
+                                                </button>
+                                            </form>
+                                        <% } %>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state">
+                        <div class="empty-icon">📅</div>
+                        <h3>No Upcoming Appointments</h3>
+                        <p>You don't have any upcoming appointments scheduled.</p>
+                        <a href="/appointments/book" class="btn btn-primary">Book Your First Appointment</a>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Recent Appointments -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Appointments</h2>
+                    <a href="/customer/appointments" class="section-link">View History</a>
+                </div>
+                
+                <% if (recentAppointments && recentAppointments.length > 0) { %>
+                    <div class="appointments-list compact">
+                        <% recentAppointments.forEach(appointment => { %>
+                            <div class="appointment-item">
+                                <div class="item-main">
+                                    <h4 class="service-name"><%= appointment.service.name %></h4>
+                                    <span class="appointment-date">
+                                        <%= moment(appointment.appointment_date).format('MMM D, YYYY') %>
+                                    </span>
+                                </div>
+                                <div class="item-details">
+                                    <span class="barber-name"><%= appointment.barber.name %></span>
+                                    <span class="status <%= appointment.status %>"><%= appointment.status %></span>
+                                    <span class="price">$<%= appointment.total_price %></span>
+                                </div>
+                                <div class="item-actions">
+                                    <a href="/appointments/<%= appointment.id %>" class="action-link">View</a>
+                                    <% if (appointment.status === 'completed' && !appointment.rating && appointment.canBeRated && appointment.canBeRated()) { %>
+                                        <a href="/ratings/<%= appointment.id %>/rate" class="action-link primary">Rate</a>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <div class="empty-state small">
+                        <div class="empty-icon">📝</div>
+                        <h4>No Recent Appointments</h4>
+                        <p>Your appointment history will appear here.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3 class="section-title">Quick Actions</h3>
+            <div class="actions-grid">
+                <a href="/appointments/book" class="action-card">
+                    <div class="action-icon">✂️</div>
+                    <h4>Book Appointment</h4>
+                    <p>Schedule your next grooming session</p>
+                </a>
+                <a href="/customer/profile" class="action-card">
+                    <div class="action-icon">👤</div>
+                    <h4>Update Profile</h4>
+                    <p>Manage your personal information</p>
+                </a>
+                <a href="/barbers" class="action-card">
+                    <div class="action-icon">👨‍💼</div>
+                    <h4>Our Barbers</h4>
+                    <p>Meet our team of professionals</p>
+                </a>
+                <a href="/services" class="action-card">
+                    <div class="action-icon">💇</div>
+                    <h4>View Services</h4>
+                    <p>Explore all our services</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>

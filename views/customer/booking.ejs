@@ -1,0 +1,158 @@
+<%- include('../partials/header', { title: 'Book Appointment - Classic Cuts' }) %>
+
+<main class="main-content">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Book Your Appointment</h1>
+            <p class="page-description">
+                Choose your service, barber, and preferred time for your grooming session
+            </p>
+        </div>
+
+        <div class="booking-container">
+            <form id="bookingForm" action="/appointments/book" method="POST" class="booking-form">
+                <!-- Step 1: Service Selection -->
+                <div class="form-step active" id="step1">
+                    <h3 class="step-title">1. Choose Your Service</h3>
+                    <div class="services-selection">
+                        <% if (services && services.length > 0) { %>
+                            <% services.forEach(service => { %>
+                                <label class="service-option">
+                                    <input type="radio" name="service_id" value="<%= service.id %>" required 
+                                           data-price="<%= service.price %>" data-duration="<%= service.duration %>">
+                                    <div class="option-card">
+                                        <div class="option-header">
+                                            <h4 class="option-title"><%= service.name %></h4>
+                                            <div class="option-price">$<%= service.price %></div>
+                                        </div>
+                                        <% if (service.description) { %>
+                                            <p class="option-description"><%= service.description %></p>
+                                        <% } %>
+                                        <div class="option-meta">
+                                            <span class="duration">⏱️ <%= service.duration %> minutes</span>
+                                            <span class="category"><%= service.category %></span>
+                                        </div>
+                                    </div>
+                                </label>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <p>No services available at the moment.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="step-actions">
+                        <button type="button" class="btn btn-primary next-step" data-next="step2">
+                            Next: Choose Barber
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Barber Selection -->
+                <div class="form-step" id="step2">
+                    <h3 class="step-title">2. Select Your Barber</h3>
+                    <div class="barbers-selection">
+                        <% if (barbers && barbers.length > 0) { %>
+                            <% barbers.forEach(barber => { %>
+                                <label class="barber-option">
+                                    <input type="radio" name="barber_id" value="<%= barber.id %>" required>
+                                    <div class="option-card">
+                                        <div class="barber-avatar medium">
+                                            <%= barber.name.split(' ').map(n => n[0]).join('') %>
+                                        </div>
+                                        <div class="barber-details">
+                                            <h4 class="barber-name"><%= barber.name %></h4>
+                                            <% if (barber.specialty) { %>
+                                                <p class="barber-specialty"><%= barber.specialty %></p>
+                                            <% } %>
+                                            <% if (barber.experience) { %>
+                                                <p class="barber-experience"><%= barber.experience %> years experience</p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </label>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <p>No barbers available at the moment.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="step-actions">
+                        <button type="button" class="btn btn-outline prev-step" data-prev="step1">
+                            Back
+                        </button>
+                        <button type="button" class="btn btn-primary next-step" data-next="step3">
+                            Next: Choose Date & Time
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Date & Time Selection -->
+                <div class="form-step" id="step3">
+                    <h3 class="step-title">3. Select Date & Time</h3>
+                    <div class="datetime-selection">
+                        <div class="form-group">
+                            <label for="appointment_date" class="form-label">Select Date</label>
+                            <input type="date" id="appointment_date" name="appointment_date" 
+                                   class="form-control" required min="<%= new Date().toISOString().split('T')[0] %>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="appointment_time" class="form-label">Available Time Slots</label>
+                            <div id="timeSlots" class="time-slots">
+                                <p class="help-text">Please select a date first to see available time slots</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="notes" class="form-label">Additional Notes (Optional)</label>
+                            <textarea id="notes" name="notes" class="form-control" 
+                                      placeholder="Any special requests or requirements..." 
+                                      rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Appointment Summary -->
+                    <div class="appointment-summary" id="appointmentSummary">
+                        <h4>Appointment Summary</h4>
+                        <div class="summary-details">
+                            <div class="summary-item">
+                                <span class="label">Service:</span>
+                                <span id="summaryService">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Barber:</span>
+                                <span id="summaryBarber">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Date & Time:</span>
+                                <span id="summaryDateTime">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Duration:</span>
+                                <span id="summaryDuration">-</span>
+                            </div>
+                            <div class="summary-item total">
+                                <span class="label">Total:</span>
+                                <span id="summaryTotal">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-actions">
+                        <button type="button" class="btn btn-outline prev-step" data-prev="step2">
+                            Back
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Confirm Booking
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script src="/js/booking.js"></script>
+<%- include('../partials/footer') %>

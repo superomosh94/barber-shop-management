@@ -1,0 +1,23 @@
+<% if (success && success.length > 0) { %>
+    <div class="flash-messages">
+        <% success.forEach(function(message) { %>
+            <div class="flash-message flash-success">
+                <span class="flash-icon">✓</span>
+                <span class="flash-text"><%= message %></span>
+                <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        <% }) %>
+    </div>
+<% } %>
+
+<% if (error && error.length > 0) { %>
+    <div class="flash-messages">
+        <% error.forEach(function(message) { %>
+            <div class="flash-message flash-error">
+                <span class="flash-icon">!</span>
+                <span class="flash-text"><%= message %></span>
+                <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+        <% }) %>
+    </div>
+<% } %>

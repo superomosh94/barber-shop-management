@@ -1,0 +1,166 @@
+<%- include('../partials/header', { title: 'Classic Cuts Barber Shop - Premium Barber Services' }) %>
+
+<main class="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Precision Cuts, Traditional Craftsmanship</h1>
+                <p class="hero-description">
+                    Experience the perfect blend of traditional barbering techniques and modern style. 
+                    Our expert barbers are dedicated to giving you the best grooming experience.
+                </p>
+                <div class="hero-actions">
+                    <% if (user) { %>
+                        <a href="/appointments/book" class="btn btn-primary">Book Appointment</a>
+                    <% } else { %>
+                        <a href="/register" class="btn btn-primary">Get Started</a>
+                        <a href="/login" class="btn btn-secondary">Sign In</a>
+                    <% } %>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Happy Customers</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">15+</span>
+                        <span class="stat-label">Years Experience</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">4.9</span>
+                        <span class="stat-label">Average Rating</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="image-placeholder">
+                    <span>✂️ Professional Barber Services</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Preview -->
+    <section class="services-preview">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Our Premium Services</h2>
+                <p class="section-description">
+                    From classic cuts to modern styles, we offer a wide range of grooming services
+                </p>
+            </div>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">💇</div>
+                    <h3 class="service-name">Classic Haircut</h3>
+                    <p class="service-description">Professional haircut with precision styling</p>
+                    <div class="service-price">$25</div>
+                    <a href="/services" class="service-link">Learn More</a>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">🧔</div>
+                    <h3 class="service-name">Beard Trim</h3>
+                    <p class="service-description">Precise beard shaping and grooming</p>
+                    <div class="service-price">$15</div>
+                    <a href="/services" class="service-link">Learn More</a>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">🪒</div>
+                    <h3 class="service-name">Royal Shave</h3>
+                    <p class="service-description">Traditional straight razor experience</p>
+                    <div class="service-price">$30</div>
+                    <a href="/services" class="service-link">Learn More</a>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">🎨</div>
+                    <h3 class="service-name">Hair Coloring</h3>
+                    <p class="service-description">Professional coloring services</p>
+                    <div class="service-price">$60</div>
+                    <a href="/services" class="service-link">Learn More</a>
+                </div>
+            </div>
+            
+            <div class="section-actions">
+                <a href="/services" class="btn btn-outline">View All Services</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Barbers Preview -->
+    <section class="barbers-preview">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Meet Our Expert Barbers</h2>
+                <p class="section-description">
+                    Our skilled barbers bring years of experience and passion to every cut
+                </p>
+            </div>
+            
+            <div class="barbers-grid">
+                <div class="barber-card">
+                    <div class="barber-avatar">TR</div>
+                    <h3 class="barber-name">Tony Reynolds</h3>
+                    <p class="barber-specialty">Classic Cuts Specialist</p>
+                    <p class="barber-experience">15+ Years Experience</p>
+                    <div class="barber-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">4.9 (128 reviews)</span>
+                    </div>
+                </div>
+                
+                <div class="barber-card">
+                    <div class="barber-avatar">MC</div>
+                    <h3 class="barber-name">Marcus Chen</h3>
+                    <p class="barber-specialty">Beard Grooming Expert</p>
+                    <p class="barber-experience">8+ Years Experience</p>
+                    <div class="barber-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">4.8 (95 reviews)</span>
+                    </div>
+                </div>
+                
+                <div class="barber-card">
+                    <div class="barber-avatar">JR</div>
+                    <h3 class="barber-name">James Rodriguez</h3>
+                    <p class="barber-specialty">Modern Styles</p>
+                    <p class="barber-experience">6+ Years Experience</p>
+                    <div class="barber-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">4.9 (87 reviews)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-actions">
+                <a href="/barbers" class="btn btn-outline">Meet All Barbers</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready for Your Next Great Haircut?</h2>
+                <p class="cta-description">
+                    Book your appointment today and experience the Classic Cuts difference
+                </p>
+                <div class="cta-actions">
+                    <% if (user) { %>
+                        <a href="/appointments/book" class="btn btn-primary btn-large">Book Now</a>
+                    <% } else { %>
+                        <a href="/register" class="btn btn-primary btn-large">Get Started</a>
+                        <a href="/login" class="btn btn-secondary btn-large">Existing Customer</a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<%- include('../partials/footer') %>
