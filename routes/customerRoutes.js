@@ -9,9 +9,14 @@ router.use(requireAuth);
 // Customer dashboard and profile routes
 router.get('/dashboard', customerController.showDashboard);
 router.get('/profile', customerController.showProfile);
-router.put('/profile', customerController.updateProfile);
-router.get('/appointments', customerController.showAppointmentHistory);
+router.post('/profile', customerController.updateProfile); // Changed from PUT to POST
+
+// Appointment routes
+router.get('/appointment-history', customerController.showAppointmentHistory);
+router.post('/appointments/:id/cancel', customerController.cancelAppointment);
+
+// Password routes
 router.get('/change-password', customerController.showChangePassword);
-router.put('/change-password', customerController.updatePassword);
+router.post('/change-password', customerController.updatePassword); // Changed from PUT to POST
 
 module.exports = router;

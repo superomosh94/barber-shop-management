@@ -1,202 +1,285 @@
-<%- include('../partials/header', { title: 'My Profile - Classic Cuts' }) %>
-
-<main class="main-content">
-    <div class="container">
-        <div class="page-header">
-            <h1 class="page-title">My Profile</h1>
-            <a href="/customer/dashboard" class="btn btn-outline">← Back to Dashboard</a>
-        </div>
-
-        <div class="profile-container">
-            <div class="profile-card">
-                <div class="profile-header">
-                    <div class="profile-avatar">
-                        <div class="avatar-placeholder">
-                            <%= user.name.split(' ').map(n => n[0]).join('') %>
-                        </div>
-                    </div>
-                    <div class="profile-info">
-                        <h2 class="profile-name"><%= user.name %></h2>
-                        <p class="profile-email"><%= user.email %></p>
-                        <p class="profile-member-since">
-                            Member since <%= customer ? new Date(customer.created_at).toLocaleDateString() : 'Recently' %>
-                        </p>
-                    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+        }
+        
+        body {
+            background-color: #f5f6fa;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary), #1a2530);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            margin: 0 auto 1rem;
+        }
+        
+        .stat-card {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .nav-customer {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-customer .nav-link {
+            color: var(--primary);
+            font-weight: 500;
+            padding: 1rem 1.5rem;
+        }
+        
+        .nav-customer .nav-link.active {
+            color: var(--secondary);
+            border-bottom: 3px solid var(--secondary);
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg nav-customer">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/customer/dashboard" style="color: var(--primary);">
+                <i class="fas fa-cut me-2"></i>Classic Cuts
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i> <%= user.name %>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/customer/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="/customer/appointment-history"><i class="fas fa-history me-2"></i>Appointments</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                    </ul>
                 </div>
+            </div>
+        </div>
+    </nav>
 
-                <form action="/customer/profile" method="POST" class="profile-form">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="name" class="form-label">Full Name</label>
-                            <input type="text" id="name" name="name" class="form-control" 
-                                   value="<%= customer ? customer.name : user.name %>" required>
+    <!-- Customer Navigation -->
+    <div class="nav-customer">
+        <div class="container">
+            <ul class="nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/customer/dashboard">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/customer/profile">
+                        <i class="fas fa-user me-2"></i>Profile
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/customer/appointment-history">
+                        <i class="fas fa-history me-2"></i>Appointments
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/booking">
+                        <i class="fas fa-calendar-plus me-2"></i>Book Now
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    <% if (typeof messages !== 'undefined' && messages.error) { %>
+        <div class="container mt-3">
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <%= messages.error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    <% } %>
+    
+    <% if (typeof messages !== 'undefined' && messages.success) { %>
+        <div class="container mt-3">
+            <div class="alert alert-success alert-dismissible fade show">
+                <i class="fas fa-check-circle me-2"></i>
+                <%= messages.success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="h2 mb-2">My Profile</h1>
+                    <p class="mb-0">Manage your personal information and account settings</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <!-- Profile Information -->
+            <div class="col-lg-8">
+                <div class="profile-card">
+                    <h4 class="mb-4">
+                        <i class="fas fa-user-edit me-2"></i>Personal Information
+                    </h4>
+                    
+                    <form action="/customer/profile" method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" name="name" value="<%= customer.name %>" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" name="phone" value="<%= customer.phone || '' %>">
+                            </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="email" class="form-label">Email Address</label>
-                            <input type="email" id="email" class="form-control" 
-                                   value="<%= customer ? customer.email : user.email %>" disabled>
-                            <small class="form-help">Email cannot be changed</small>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control" name="email" value="<%= customer.email %>" required>
                         </div>
-
-                        <div class="form-group">
-                            <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" id="phone" name="phone" class="form-control" 
-                                   value="<%= customer ? customer.phone : user.phone %>">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Preferences</label>
+                            <textarea class="form-control" name="preferences" rows="3" 
+                                      placeholder="Any special preferences or notes..."><%= customer.preferences || '' %></textarea>
                         </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <a href="/customer/dashboard" class="btn btn-outline">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Update Profile</button>
-                    </div>
-                </form>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Member since <%= moment(customer.created_at).format('MMMM D, YYYY') %>
+                            </small>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <div class="profile-actions">
-                <div class="action-card">
-                    <h3 class="card-title">Account Actions</h3>
-                    <div class="action-buttons">
-                        <a href="/customer/change-password" class="btn btn-outline">Change Password</a>
-                        <a href="/customer/appointments" class="btn btn-outline">View Appointment History</a>
+            <!-- Account Stats & Actions -->
+            <div class="col-lg-4">
+                <!-- Profile Summary -->
+                <div class="profile-card text-center">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h5><%= customer.name %></h5>
+                    <p class="text-muted"><%= customer.email %></p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="/customer/change-password" class="btn btn-outline-primary">
+                            <i class="fas fa-lock me-2"></i>Change Password
+                        </a>
                     </div>
                 </div>
 
-                <div class="stats-card">
-                    <h3 class="card-title">Your Statistics</h3>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <span class="stat-number"><%= stats ? stats.totalAppointments : 0 %></span>
-                            <span class="stat-label">Total Appointments</span>
+                <!-- Account Statistics -->
+                <div class="profile-card">
+                    <h6 class="mb-3">Account Statistics</h6>
+                    
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-number"><%= profileStats.completedAppointments %></div>
+                                <small class="text-muted">Completed</small>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-number"><%= stats ? stats.completedAppointments : 0 %></span>
-                            <span class="stat-label">Completed</span>
+                        <div class="col-6 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-number"><%= profileStats.pendingAppointments %></div>
+                                <small class="text-muted">Pending</small>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-number"><%= stats ? stats.pendingRatings : 0 %></span>
-                            <span class="stat-label">Pending Ratings</span>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <div class="stat-number"><%= profileStats.totalRatings %></div>
+                                <small class="text-muted">Reviews</small>
+                            </div>
                         </div>
+                        <div class="col-6">
+                            <div class="stat-card">
+                                <div class="stat-number">$<%= profileStats.totalSpending %></div>
+                                <small class="text-muted">Spent</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="profile-card">
+                    <h6 class="mb-3">Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <a href="/booking" class="btn btn-success">
+                            <i class="fas fa-calendar-plus me-2"></i>Book Appointment
+                        </a>
+                        <a href="/customer/appointment-history" class="btn btn-outline-secondary">
+                            <i class="fas fa-history me-2"></i>View History
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</main>
 
-<style>
-.profile-container {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.profile-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-}
-
-.profile-header {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.avatar-placeholder {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 1.5rem;
-}
-
-.profile-name {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.profile-email {
-    color: #6b7280;
-    margin-bottom: 0.5rem;
-}
-
-.profile-member-since {
-    color: #9ca3af;
-    font-size: 0.875rem;
-}
-
-.form-grid {
-    display: grid;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.profile-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.stats-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-}
-
-.stat-item {
-    text-align: center;
-    padding: 1rem;
-    background: #f8fafc;
-    border-radius: 0.5rem;
-}
-
-.stat-number {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1d4ed8;
-    margin-bottom: 0.25rem;
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    color: #6b7280;
-}
-
-@media (max-width: 768px) {
-    .profile-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .profile-header {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-
-<%- include('../partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

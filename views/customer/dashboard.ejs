@@ -1,176 +1,537 @@
-<%- include('../partials/header', { title: 'My Dashboard - Classic Cuts' }) %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+        }
+        
+        body {
+            background-color: #f5f6fa;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-<main class="main-content">
-    <div class="container">
-        <div class="dashboard-header">
-            <h1 class="page-title">Welcome back, <%= user.name %>! 👋</h1>
-            <p class="page-description">Here's your appointment overview and recent activity</p>
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .customer-sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            background: white;
+            padding: 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .user-details h6 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-details small {
+            font-size: 0.8rem;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+            flex: 1;
+        }
+
+        .sidebar-menu .nav-link {
+            color: #495057;
+            padding: 0.75rem 1.5rem;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-decoration: none;
+            display: block;
+        }
+
+        .sidebar-menu .nav-link:hover {
+            background: #e9ecef;
+            color: #2c3e50;
+            border-left-color: #3498db;
+        }
+
+        .sidebar-menu .nav-link.active {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left-color: #1976d2;
+            font-weight: 600;
+        }
+
+        .sidebar-menu .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-divider {
+            margin: 0.5rem 1.5rem;
+            border-color: #dee2e6;
+            opacity: 0.5;
+        }
+
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #dee2e6;
+            background: white;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2c3e50;
+            line-height: 1.2;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            overflow-x: hidden;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary), #1a2530);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .stat-card.success { border-left-color: var(--success); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-card.danger { border-left-color: var(--danger); }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .appointment-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-pending { background: #fff3cd; color: #856404; }
+        .badge-confirmed { background: #d1ecf1; color: #0c5460; }
+        .badge-completed { background: #d4edda; color: #155724; }
+        .badge-cancelled { background: #f8d7da; color: #721c24; }
+        
+        .section-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .quick-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .customer-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+            }
+            
+            .dashboard-header {
+                padding: 1.5rem 0;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .sidebar-menu {
+                max-height: 300px;
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="customer-sidebar">
+            <div class="sidebar-header">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-details">
+                        <h6 class="mb-0"><%= user.name %></h6>
+                        <small class="text-muted"><%= user.email %></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-menu">
+                <ul class="nav flex-column">
+                    <!-- Dashboard -->
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/customer/dashboard">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Dashboard
+                            <% if (typeof pendingAppointmentsCount !== 'undefined' && pendingAppointmentsCount > 0) { %>
+                                <span class="badge bg-warning float-end"><%= pendingAppointmentsCount %></span>
+                            <% } %>
+                        </a>
+                    </li>
+
+                    <!-- Book Appointment -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/booking">
+                            <i class="fas fa-calendar-plus me-2"></i>
+                            Book Appointment
+                        </a>
+                    </li>
+
+                    <!-- Appointment History -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/appointment-history">
+                            <i class="fas fa-history me-2"></i>
+                            My Appointments
+                        </a>
+                    </li>
+
+                    <!-- Profile -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/profile">
+                            <i class="fas fa-user me-2"></i>
+                            My Profile
+                        </a>
+                    </li>
+
+                    <!-- Change Password -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/change-password">
+                            <i class="fas fa-lock me-2"></i>
+                            Change Password
+                        </a>
+                    </li>
+
+                    <!-- Divider -->
+                    <li class="nav-item">
+                        <hr class="sidebar-divider">
+                    </li>
+
+                    <!-- Services -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/services">
+                            <i class="fas fa-cut me-2"></i>
+                            Our Services
+                        </a>
+                    </li>
+
+                    <!-- Barbers -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/barbers">
+                            <i class="fas fa-user-tie me-2"></i>
+                            Our Barbers
+                        </a>
+                    </li>
+
+                    <!-- Divider -->
+                    <li class="nav-item">
+                        <hr class="sidebar-divider">
+                    </li>
+
+                    <!-- Support -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">
+                            <i class="fas fa-headset me-2"></i>
+                            Contact Support
+                        </a>
+                    </li>
+
+                    <!-- Logout -->
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/auth/logout">
+                            <i class="fas fa-sign-out-alt me-2"></i>
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="sidebar-footer">
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <small class="text-muted">Total Appointments</small>
+                        <div class="stat-number">
+                            <%= stats.totalAppointments %>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <small class="text-muted">Completed</small>
+                        <div class="stat-number text-success">
+                            <%= stats.completedAppointments %>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon primary">📅</div>
-                <div class="stat-info">
-                    <div class="stat-number"><%= stats.totalAppointments %></div>
-                    <div class="stat-label">Total Appointments</div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            <% if (typeof messages !== 'undefined' && messages.error) { %>
+                <div class="container mt-3">
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <%= messages.error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon success">✅</div>
-                <div class="stat-info">
-                    <div class="stat-number"><%= stats.completedAppointments %></div>
-                    <div class="stat-label">Completed</div>
+            <% } %>
+            
+            <% if (typeof messages !== 'undefined' && messages.success) { %>
+                <div class="container mt-3">
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <%= messages.success %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon warning">⭐</div>
-                <div class="stat-info">
-                    <div class="stat-number"><%= stats.pendingRatings %></div>
-                    <div class="stat-label">Pending Ratings</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-action">
-                    <a href="/appointments/book" class="btn btn-primary">Book New Appointment</a>
-                </div>
-            </div>
-        </div>
+            <% } %>
 
-        <div class="dashboard-grid">
-            <!-- Upcoming Appointments -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <h2 class="section-title">Upcoming Appointments</h2>
-                    <a href="/customer/appointments" class="section-link">View All</a>
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="h2 mb-2">Welcome back, <%= user.name %>!</h1>
+                            <p class="mb-0">Here's your appointment overview and recent activity</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="/booking" class="btn btn-light btn-lg">
+                                <i class="fas fa-calendar-plus me-2"></i>Book New Appointment
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                
-                <% if (upcomingAppointments && upcomingAppointments.length > 0) { %>
-                    <div class="appointments-list">
-                        <% upcomingAppointments.forEach(appointment => { %>
-                            <div class="appointment-card">
-                                <div class="appointment-header">
-                                    <h3 class="service-name"><%= appointment.service.name %></h3>
-                                    <span class="status-badge <%= appointment.status %>">
-                                        <%= appointment.status %>
-                                    </span>
-                                </div>
-                                <div class="appointment-details">
-                                    <div class="detail">
-                                        <span class="label">Barber:</span>
-                                        <span class="value"><%= appointment.barber.name %></span>
+            </div>
+
+            <div class="container">
+                <!-- Quick Stats -->
+                <div class="quick-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number"><%= stats.totalAppointments %></div>
+                        <div class="text-muted">Total Appointments</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-number"><%= stats.completedAppointments %></div>
+                        <div class="text-muted">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number"><%= stats.pendingAppointments %></div>
+                        <div class="text-muted">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">$<%= stats.totalSpending %></div>
+                        <div class="text-muted">Total Spending</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Upcoming Appointments -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h5 class="section-title mb-0">
+                                    <i class="fas fa-calendar-check me-2"></i>Upcoming Appointments
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (upcomingAppointments.length > 0) { %>
+                                    <% upcomingAppointments.forEach(appointment => { %>
+                                        <div class="appointment-card">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0"><%= appointment.service.name %></h6>
+                                                <span class="status-badge badge-<%= appointment.status %>">
+                                                    <%= appointment.status %>
+                                                </span>
+                                            </div>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-user me-2"></i><%= appointment.barber.name %>
+                                            </p>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-clock me-2"></i>
+                                                <%= moment(appointment.appointment_date).format('MMM DD, YYYY • h:mm A') %>
+                                            </p>
+                                            <p class="text-muted mb-0">
+                                                <i class="fas fa-dollar-sign me-2"></i>$<%= appointment.service.price %>
+                                                • <%= appointment.service.duration %> mins
+                                            </p>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No upcoming appointments</p>
+                                        <a href="/booking" class="btn btn-primary">Book Your First Appointment</a>
                                     </div>
-                                    <div class="detail">
-                                        <span class="label">Date & Time:</span>
-                                        <span class="value">
-                                            <%= moment(appointment.appointment_date).format('MMM D, YYYY [at] h:mm A') %>
-                                        </span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="col-lg-6">
+                        <div class="card">
+                            <div class="card-header bg-white">
+                                <h5 class="section-title mb-0">
+                                    <i class="fas fa-history me-2"></i>Recent Appointments
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <% if (recentAppointments.length > 0) { %>
+                                    <% recentAppointments.forEach(appointment => { %>
+                                        <div class="appointment-card">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0"><%= appointment.service.name %></h6>
+                                                <span class="status-badge badge-<%= appointment.status %>">
+                                                    <%= appointment.status %>
+                                                </span>
+                                            </div>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-user me-2"></i><%= appointment.barber.name %>
+                                            </p>
+                                            <p class="text-muted mb-2">
+                                                <i class="fas fa-clock me-2"></i>
+                                                <%= moment(appointment.appointment_date).format('MMM DD, YYYY') %>
+                                            </p>
+                                            <% if (appointment.status === 'completed') { %>
+                                                <a href="/ratings/create/<%= appointment.id %>" class="btn btn-sm btn-outline-primary">
+                                                    Leave Review
+                                                </a>
+                                            <% } %>
+                                        </div>
+                                    <% }); %>
+                                <% } else { %>
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No recent appointments</p>
                                     </div>
-                                    <div class="detail">
-                                        <span class="label">Duration:</span>
-                                        <span class="value"><%= appointment.service.duration %> minutes</span>
-                                    </div>
-                                    <div class="detail">
-                                        <span class="label">Total:</span>
-                                        <span class="value">$<%= appointment.total_price %></span>
-                                    </div>
-                                </div>
-                                <div class="appointment-actions">
-                                    <a href="/appointments/<%= appointment.id %>" class="btn btn-outline btn-small">
-                                        View Details
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="card mt-4">
+                            <div class="card-header bg-white">
+                                <h5 class="section-title mb-0">
+                                    <i class="fas fa-rocket me-2"></i>Quick Actions
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a href="/booking" class="btn btn-primary">
+                                        <i class="fas fa-calendar-plus me-2"></i>Book New Appointment
                                     </a>
-                                    <% if (appointment.status === 'pending' || appointment.status === 'confirmed') { %>
-                                        <% if (appointment.canBeCancelled && appointment.canBeCancelled()) { %>
-                                            <form action="/appointments/<%= appointment.id %>/cancel" method="POST" class="inline-form">
-                                                <button type="submit" class="btn btn-danger btn-small" 
-                                                        onclick="return confirm('Are you sure you want to cancel this appointment?')">
-                                                    Cancel
-                                                </button>
-                                            </form>
-                                        <% } %>
-                                    <% } %>
+                                    <a href="/customer/appointment-history" class="btn btn-outline-secondary">
+                                        <i class="fas fa-history me-2"></i>View All Appointments
+                                    </a>
+                                    <a href="/services" class="btn btn-outline-primary">
+                                        <i class="fas fa-cut me-2"></i>Browse Services
+                                    </a>
                                 </div>
                             </div>
-                        <% }) %>
+                        </div>
                     </div>
-                <% } else { %>
-                    <div class="empty-state">
-                        <div class="empty-icon">📅</div>
-                        <h3>No Upcoming Appointments</h3>
-                        <p>You don't have any upcoming appointments scheduled.</p>
-                        <a href="/appointments/book" class="btn btn-primary">Book Your First Appointment</a>
-                    </div>
-                <% } %>
-            </div>
-
-            <!-- Recent Appointments -->
-            <div class="dashboard-section">
-                <div class="section-header">
-                    <h2 class="section-title">Recent Appointments</h2>
-                    <a href="/customer/appointments" class="section-link">View History</a>
                 </div>
-                
-                <% if (recentAppointments && recentAppointments.length > 0) { %>
-                    <div class="appointments-list compact">
-                        <% recentAppointments.forEach(appointment => { %>
-                            <div class="appointment-item">
-                                <div class="item-main">
-                                    <h4 class="service-name"><%= appointment.service.name %></h4>
-                                    <span class="appointment-date">
-                                        <%= moment(appointment.appointment_date).format('MMM D, YYYY') %>
-                                    </span>
-                                </div>
-                                <div class="item-details">
-                                    <span class="barber-name"><%= appointment.barber.name %></span>
-                                    <span class="status <%= appointment.status %>"><%= appointment.status %></span>
-                                    <span class="price">$<%= appointment.total_price %></span>
-                                </div>
-                                <div class="item-actions">
-                                    <a href="/appointments/<%= appointment.id %>" class="action-link">View</a>
-                                    <% if (appointment.status === 'completed' && !appointment.rating && appointment.canBeRated && appointment.canBeRated()) { %>
-                                        <a href="/ratings/<%= appointment.id %>/rate" class="action-link primary">Rate</a>
-                                    <% } %>
-                                </div>
-                            </div>
-                        <% }) %>
-                    </div>
-                <% } else { %>
-                    <div class="empty-state small">
-                        <div class="empty-icon">📝</div>
-                        <h4>No Recent Appointments</h4>
-                        <p>Your appointment history will appear here.</p>
-                    </div>
-                <% } %>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <h3 class="section-title">Quick Actions</h3>
-            <div class="actions-grid">
-                <a href="/appointments/book" class="action-card">
-                    <div class="action-icon">✂️</div>
-                    <h4>Book Appointment</h4>
-                    <p>Schedule your next grooming session</p>
-                </a>
-                <a href="/customer/profile" class="action-card">
-                    <div class="action-icon">👤</div>
-                    <h4>Update Profile</h4>
-                    <p>Manage your personal information</p>
-                </a>
-                <a href="/barbers" class="action-card">
-                    <div class="action-icon">👨‍💼</div>
-                    <h4>Our Barbers</h4>
-                    <p>Meet our team of professionals</p>
-                </a>
-                <a href="/services" class="action-card">
-                    <div class="action-icon">💇</div>
-                    <h4>View Services</h4>
-                    <p>Explore all our services</p>
-                </a>
             </div>
         </div>
     </div>
-</main>
 
-<%- include('../partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -24,7 +24,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        secure: false, 
+        secure: process.env.NODE_ENV === 'production', 
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
@@ -41,7 +41,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// Import routes - FIXED: Check if routes exist before using them
+// Import routes
 try {
     const authRoutes = require('./routes/authRoutes');
     const appointmentRoutes = require('./routes/appointmentRoutes');
@@ -66,12 +66,57 @@ try {
     process.exit(1);
 }
 
-// Home route
+// Home route - moved before booking routes for better organization
 app.get('/', (req, res) => {
     res.render('customer/home', { 
         title: 'Classic Cuts Barber Shop',
         user: req.session.user 
     });
+});
+
+// Update the booking route in server.js
+app.get('/book-appointment', async (req, res) => {
+    try {
+        if (!req.session.user) {
+            req.flash('error', 'Please login to book an appointment');
+            return res.redirect('/auth/login');
+        }
+
+        // Import models
+        const { Service, Barber } = require('./models');
+        
+        // Fetch available services and barbers with CORRECT column names
+        const [services, barbers] = await Promise.all([
+            Service.findAll({
+                where: { is_active: true },
+                attributes: ['id', 'name', 'price', 'duration', 'description', 'category'],
+                order: [['name', 'ASC']]
+            }),
+            Barber.findAll({
+                where: { is_active: true },
+                attributes: ['id', 'name', 'specialty', 'experience', 'bio', 'image', 'email', 'phone'], // Changed specialization to specialty
+                order: [['name', 'ASC']]
+            })
+        ]);
+
+        res.render('customer/booking', {
+            title: 'Book Appointment - Classic Cuts',
+            services: services || [],
+            barbers: barbers || [],
+            user: req.session.user,
+            currentPage: 'booking'
+        });
+
+    } catch (error) {
+        console.error('Booking page error:', error);
+        req.flash('error', 'Unable to load booking page. Please try again.');
+        res.redirect('/customer/dashboard');
+    }
+});
+
+// Redirect /booking to /book-appointment for consistency
+app.get('/booking', (req, res) => {
+    res.redirect('/book-appointment');
 });
 
 // Error handling middleware

@@ -1,78 +1,84 @@
-<div class="container-fluid">
-    <div class="row">
-        <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-            <div class="position-sticky pt-3">
-                <div class="text-center mb-4">
-                    <h4 class="text-white">
-                        <i class="fas fa-cut"></i>
-                        Classic Cuts
-                    </h4>
-                    <small class="text-muted">Admin Panel</small>
-                </div>
-                
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/dashboard">
-                            <i class="fas fa-tachometer-alt"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/appointments">
-                            <i class="fas fa-calendar-check"></i>
-                            Appointments
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/customers">
-                            <i class="fas fa-users"></i>
-                            Customers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/barbers">
-                            <i class="fas fa-user-tie"></i>
-                            Barbers
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/services">
-                            <i class="fas fa-concierge-bell"></i>
-                            Services
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/ratings">
-                            <i class="fas fa-star"></i>
-                            Ratings
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/reports">
-                            <i class="fas fa-chart-bar"></i>
-                            Reports
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/admins">
-                            <i class="fas fa-user-shield"></i>
-                            Admins
-                        </a>
-                    </li>
-                    <li class="nav-item mt-4">
-                        <a class="nav-link text-warning" href="/admin/profile">
-                            <i class="fas fa-user-cog"></i>
-                            Profile
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <form action="/admin/logout" method="POST" class="d-inline">
-                            <button type="submit" class="nav-link text-danger bg-transparent border-0 w-100 text-start">
-                                <i class="fas fa-sign-out-alt"></i>
-                                Logout
-                            </button>
-                        </form>
-                    </li>
-                </ul>
+<!-- Admin Sidebar Partial -->
+<nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+    <div class="position-sticky pt-3">
+        <div class="text-center mb-4 p-3">
+            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                 style="width: 60px; height: 60px;">
+                <i class="fas fa-cut fa-2x text-white"></i>
             </div>
-        </nav>
+            <h5 class="text-white mb-1">Classic Cuts</h5>
+            <small class="text-muted">Admin Panel</small>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'dashboard') ? 'active' : '' %>" href="/admin/dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'appointments') ? 'active' : '' %>" href="/admin/appointments">
+                    <i class="fas fa-calendar-check"></i>
+                    Appointments
+                    <% if (typeof pendingAppointmentsCount !== 'undefined' && pendingAppointmentsCount > 0) { %>
+                    <span class="badge bg-warning float-end"><%= pendingAppointmentsCount %></span>
+                    <% } %>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'customers') ? 'active' : '' %>" href="/admin/customers">
+                    <i class="fas fa-users"></i>
+                    Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'barbers') ? 'active' : '' %>" href="/admin/barbers">
+                    <i class="fas fa-user-tie"></i>
+                    Barbers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'services') ? 'active' : '' %>" href="/admin/services">
+                    <i class="fas fa-concierge-bell"></i>
+                    Services
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'ratings') ? 'active' : '' %>" href="/admin/ratings">
+                    <i class="fas fa-star"></i>
+                    Ratings
+                    <% if (typeof pendingRatingsCount !== 'undefined' && pendingRatingsCount > 0) { %>
+                    <span class="badge bg-warning float-end"><%= pendingRatingsCount %></span>
+                    <% } %>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'reports') ? 'active' : '' %>" href="/admin/reports">
+                    <i class="fas fa-chart-bar"></i>
+                    Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link <%= (typeof currentPage !== 'undefined' && currentPage === 'admins') ? 'active' : '' %>" href="/admin/admins">
+                    <i class="fas fa-user-shield"></i>
+                    Admins
+                </a>
+            </li>
+            <li class="nav-item mt-4">
+                <a class="nav-link text-warning <%= (typeof currentPage !== 'undefined' && currentPage === 'profile') ? 'active' : '' %>" href="/admin/profile">
+                    <i class="fas fa-user-cog"></i>
+                    Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <form action="/admin/logout" method="POST" class="d-inline">
+                    <button type="submit" class="nav-link text-danger bg-transparent border-0 w-100 text-start">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
