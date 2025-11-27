@@ -8,28 +8,65 @@
         </div>
         
         <div class="nav-menu" id="navMenu">
-            <a href="/" class="nav-link <%= currentUrl === '/' ? 'active' : '' %>">Home</a>
-            <a href="/services" class="nav-link <%= currentUrl.includes('/services') ? 'active' : '' %>">Services</a>
-            <a href="/barbers" class="nav-link <%= currentUrl.includes('/barbers') ? 'active' : '' %>">Our Barbers</a>
+            <a href="/" class="nav-link <%= currentUrl === '/' ? 'active' : '' %>">
+                <i class="nav-icon">🏠</i>
+                <span>Home</span>
+            </a>
+            <a href="/services" class="nav-link <%= currentUrl.includes('/services') ? 'active' : '' %>">
+                <i class="nav-icon">💈</i>
+                <span>Services</span>
+            </a>
+            <a href="/barbers" class="nav-link <%= currentUrl.includes('/barbers') ? 'active' : '' %>">
+                <i class="nav-icon">👨‍💼</i>
+                <span>Our Barbers</span>
+            </a>
             
             <% if (user) { %>
-                <a href="/customer/dashboard" class="nav-link <%= currentUrl.includes('/customer') ? 'active' : '' %>">Dashboard</a>
-                <a href="/appointments/book" class="nav-link btn-book">Book Now</a>
+                <a href="/customer/dashboard" class="nav-link <%= currentUrl.includes('/customer') ? 'active' : '' %>">
+                    <i class="nav-icon">📊</i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/appointments/book" class="nav-link btn-book">
+                    <i class="nav-icon">📅</i>
+                    <span>Book Now</span>
+                </a>
                 <div class="nav-user">
-                    <span class="user-greeting">Hello, <%= user.name %></span>
+                    <div class="user-avatar">
+                        <%= user.name.split(' ').map(n => n[0]).join('') %>
+                    </div>
+                    <span class="user-greeting">Hi, <%= user.name.split(' ')[0] %></span>
                     <div class="user-dropdown">
-                        <a href="/customer/profile" class="dropdown-link">Profile</a>
-                        <a href="/customer/appointments" class="dropdown-link">My Appointments</a>
+                        <a href="/customer/profile" class="dropdown-link">
+                            <i class="dropdown-icon">👤</i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="/customer/appointments" class="dropdown-link">
+                            <i class="dropdown-icon">📋</i>
+                            <span>My Appointments</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
                         <form action="/logout" method="POST" class="logout-form">
-                            <button type="submit" class="dropdown-link logout-btn">Logout</button>
+                            <button type="submit" class="dropdown-link logout-btn">
+                                <i class="dropdown-icon">🚪</i>
+                                <span>Logout</span>
+                            </button>
                         </form>
                     </div>
                 </div>
             <% } else { %>
-                <a href="/appointments/book" class="nav-link btn-book">Book Now</a>
+                <a href="/appointments/book" class="nav-link btn-book">
+                    <i class="nav-icon">📅</i>
+                    <span>Book Now</span>
+                </a>
                 <div class="nav-auth">
-                    <a href="/login" class="nav-link">Login</a>
-                    <a href="/register" class="nav-link btn-register">Sign Up</a>
+                    <a href="/login" class="nav-link">
+                        <i class="nav-icon">🔑</i>
+                        <span>Login</span>
+                    </a>
+                    <a href="/register" class="nav-link btn-register">
+                        <i class="nav-icon">👤</i>
+                        <span>Sign Up</span>
+                    </a>
                 </div>
             <% } %>
         </div>
@@ -42,35 +79,400 @@
     </div>
 </nav>
 
+<style>
+.navbar {
+    background: #2c3e50;
+    padding: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    height: 70px;
+}
+
+.nav-logo {
+    flex-shrink: 0;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    gap: 0.5rem;
+}
+
+.logo-icon {
+    font-size: 1.8rem;
+}
+
+.logo-text {
+    background: linear-gradient(45deg, #3498db, #e67e22);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    position: relative;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-1px);
+}
+
+.nav-link.active {
+    background: #3498db;
+    color: white;
+}
+
+.nav-icon {
+    font-size: 1.1rem;
+}
+
+.btn-book {
+    background: #e67e22;
+    color: white !important;
+    font-weight: 600;
+}
+
+.btn-book:hover {
+    background: #d35400;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.3);
+}
+
+.nav-auth {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.btn-register {
+    background: #27ae60;
+    color: white !important;
+    font-weight: 600;
+}
+
+.btn-register:hover {
+    background: #219653;
+}
+
+.nav-user {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+}
+
+.nav-user:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #3498db, #9b59b6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.user-greeting {
+    color: white;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    padding: 0.5rem;
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.user-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: #2c3e50;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    width: 100%;
+    border: none;
+    background: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.dropdown-link:hover {
+    background: #f8f9fa;
+    color: #3498db;
+}
+
+.dropdown-icon {
+    font-size: 1rem;
+    width: 16px;
+    text-align: center;
+}
+
+.logout-form {
+    margin: 0;
+}
+
+.logout-btn {
+    color: #e74c3c !important;
+}
+
+.logout-btn:hover {
+    background: #fdf2f2 !important;
+    color: #c0392b !important;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #e9ecef;
+    margin: 0.5rem 0;
+}
+
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.nav-toggle span {
+    width: 25px;
+    height: 3px;
+    background: white;
+    margin: 2px 0;
+    transition: 0.3s;
+    border-radius: 2px;
+}
+
+.nav-toggle.active span:nth-child(1) {
+    transform: rotate(-45deg) translate(-5px, 6px);
+}
+
+.nav-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.active span:nth-child(3) {
+    transform: rotate(45deg) translate(-5px, -6px);
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 0 1rem;
+        height: 60px;
+    }
+    
+    .nav-toggle {
+        display: flex;
+    }
+    
+    .nav-menu {
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        width: 100%;
+        height: calc(100vh - 60px);
+        background: #2c3e50;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 2rem 1rem;
+        gap: 0;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+    }
+    
+    .nav-menu.active {
+        left: 0;
+    }
+    
+    .nav-link {
+        padding: 1rem;
+        border-radius: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        justify-content: flex-start;
+    }
+    
+    .nav-auth {
+        flex-direction: column;
+        gap: 0;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .nav-user {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .user-dropdown {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        background: transparent;
+        padding: 0;
+        margin-top: 0.5rem;
+        display: none;
+    }
+    
+    .nav-user.active .user-dropdown {
+        display: block;
+    }
+    
+    .dropdown-link {
+        color: white;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .user-greeting {
+        font-size: 1rem;
+    }
+    
+    .logo-text {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 0 0.75rem;
+    }
+    
+    .logo-text {
+        display: none;
+    }
+    
+    .user-greeting {
+        display: none;
+    }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const navToggle = document.getElementById('navToggle');
     const navMenu = document.getElementById('navMenu');
     
+    // Mobile menu toggle
     if (navToggle && navMenu) {
-        navToggle.addEventListener('click', function() {
+        navToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
             navMenu.classList.toggle('active');
             navToggle.classList.toggle('active');
         });
     }
     
-    // Close dropdown when clicking outside
+    // Close mobile menu when clicking outside
     document.addEventListener('click', function(event) {
-        const userDropdowns = document.querySelectorAll('.user-dropdown');
-        userDropdowns.forEach(dropdown => {
-            if (!dropdown.parentElement.contains(event.target)) {
-                dropdown.classList.remove('active');
+        if (navMenu && navMenu.classList.contains('active')) {
+            if (!navMenu.contains(event.target) && !navToggle.contains(event.target)) {
+                navMenu.classList.remove('active');
+                navToggle.classList.remove('active');
             }
-        });
+        }
     });
     
-    // User dropdown toggle
-    const userElements = document.querySelectorAll('.nav-user');
-    userElements.forEach(user => {
-        user.addEventListener('click', function(e) {
+    // User dropdown toggle (desktop)
+    const navUser = document.querySelector('.nav-user');
+    if (navUser && window.innerWidth > 768) {
+        navUser.addEventListener('click', function(e) {
             e.stopPropagation();
             const dropdown = this.querySelector('.user-dropdown');
             dropdown.classList.toggle('active');
+        });
+    }
+    
+    // User dropdown toggle (mobile)
+    if (navUser && window.innerWidth <= 768) {
+        navUser.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.classList.toggle('active');
+        });
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        // Close desktop dropdowns
+        document.querySelectorAll('.user-dropdown.active').forEach(dropdown => {
+            dropdown.classList.remove('active');
+        });
+        
+        // Close mobile user menu
+        if (navUser && window.innerWidth <= 768) {
+            navUser.classList.remove('active');
+        }
+    });
+    
+    // Prevent dropdown close when clicking inside dropdown
+    document.querySelectorAll('.user-dropdown, .nav-user').forEach(element => {
+        element.addEventListener('click', function(e) {
+            e.stopPropagation();
         });
     });
 });
