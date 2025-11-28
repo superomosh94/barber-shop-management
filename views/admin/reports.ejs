@@ -1,710 +1,188 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <%- include('../partials/head') %>
-    <title><%= title %></title>
-    <style>
-        .stats-card {
-            border-left: 4px solid;
-        }
-        .stats-card.revenue {
-            border-left-color: #198754;
-        }
-        .stats-card.appointments {
-            border-left-color: #0d6efd;
-        }
-        .stats-card.customers {
-            border-left-color: #6f42c1;
-        }
-        .stats-card.ratings {
-            border-left-color: #fd7e14;
-        }
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-        .report-card {
-            transition: transform 0.2s;
-        }
-        .report-card:hover {
-            transform: translateY(-2px);
-        }
-        .trend-up {
-            color: #198754;
-        }
-        .trend-down {
-            color: #dc3545;
-        }
-        .trend-neutral {
-            color: #6c757d;
-        }
-        .filter-btn-group .btn {
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-        .table th {
-            border-top: none;
-            font-weight: 600;
-        }
-    </style>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <%- include('../partials/admin-sidebar') %>
-            
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <!-- Header -->
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">
-                        <i class="fas fa-chart-bar"></i>
-                        Reports & Analytics
-                    </h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="btn-group me-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary active" data-period="today">Today</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-period="week">This Week</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-period="month">This Month</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" data-period="year">This Year</button>
-                        </div>
-                        <button class="btn btn-sm btn-outline-primary" onclick="exportReports()">
-                            <i class="fas fa-download"></i> Export
-                        </button>
-                    </div>
-                </div>
+<div class="page-header">
+    <h1><i class="fas fa-chart-bar me-2"></i>Reports & Analytics</h1>
+    <p>View business performance and statistics</p>
+</div>
 
-                <!-- Quick Stats -->
-                <div class="row mb-4">
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card revenue mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-uppercase mb-1 text-success">Total Revenue</div>
-                                        <div class="h5 mb-0 text-success">$<span id="totalRevenue">0.00</span></div>
-                                        <div class="mt-2 mb-0 text-muted">
-                                            <span id="revenueTrend" class="trend-neutral">
-                                                <i class="fas fa-minus"></i> 0% from last period
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-dollar-sign fa-2x text-success"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card appointments mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-uppercase mb-1 text-primary">Appointments</div>
-                                        <div class="h5 mb-0 text-primary"><span id="totalAppointments">0</span></div>
-                                        <div class="mt-2 mb-0 text-muted">
-                                            <span id="appointmentsTrend" class="trend-neutral">
-                                                <i class="fas fa-minus"></i> 0% from last period
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-calendar-check fa-2x text-primary"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card customers mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-uppercase mb-1 text-purple">New Customers</div>
-                                        <div class="h5 mb-0 text-purple"><span id="newCustomers">0</span></div>
-                                        <div class="mt-2 mb-0 text-muted">
-                                            <span id="customersTrend" class="trend-neutral">
-                                                <i class="fas fa-minus"></i> 0% from last period
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-users fa-2x text-purple"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card ratings mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-uppercase mb-1 text-warning">Avg. Rating</div>
-                                        <div class="h5 mb-0 text-warning"><span id="avgRating">0.0</span>/5</div>
-                                        <div class="mt-2 mb-0 text-muted">
-                                            <span id="ratingsTrend" class="trend-neutral">
-                                                <i class="fas fa-minus"></i> 0% from last period
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-star fa-2x text-warning"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- Date Filter -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form class="flex gap-2 items-end">
+            <div class="form-group mb-0">
+                <label class="form-label text-sm">Date Range</label>
+                <select class="form-control" id="dateRange">
+                    <option value="today">Today</option>
+                    <option value="week" selected>This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="year">This Year</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="updateReports()">
+                <i class="fas fa-sync me-1"></i>Update
+            </button>
+        </form>
+    </div>
+</div>
 
-                <!-- Charts Row -->
-                <div class="row mb-4">
-                    <div class="col-lg-8">
-                        <div class="card report-card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-chart-line"></i>
-                                    Revenue Trend
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container">
-                                    <canvas id="revenueChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="card report-card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-chart-pie"></i>
-                                    Service Distribution
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container">
-                                    <canvas id="serviceChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- Stats Overview -->
+<div class="grid grid-4 mb-3">
+    <div class="card">
+        <h6 class="text-muted mb-1">Total Revenue</h6>
+        <h2 class="mb-0 text-gold">$12,450</h2>
+        <small class="text-success"><i class="fas fa-arrow-up"></i> 12% vs last period</small>
+    </div>
+    <div class="card">
+        <h6 class="text-muted mb-1">Appointments</h6>
+        <h2 class="mb-0">145</h2>
+        <small class="text-success"><i class="fas fa-arrow-up"></i> 5% vs last period</small>
+    </div>
+    <div class="card">
+        <h6 class="text-muted mb-1">New Customers</h6>
+        <h2 class="mb-0">28</h2>
+        <small class="text-success"><i class="fas fa-arrow-up"></i> 8% vs last period</small>
+    </div>
+    <div class="card">
+        <h6 class="text-muted mb-1">Avg. Rating</h6>
+        <h2 class="mb-0">4.8</h2>
+        <small class="text-muted">Based on 32 reviews</small>
+    </div>
+</div>
 
-                <!-- Additional Reports -->
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="card report-card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-user-tie"></i>
-                                    Barber Performance
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Barber</th>
-                                                <th>Appointments</th>
-                                                <th>Revenue</th>
-                                                <th>Avg. Rating</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="barberPerformance">
-                                            <tr>
-                                                <td colspan="4" class="text-center text-muted py-3">
-                                                    Loading barber performance data...
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="card report-card mb-4">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-concierge-bell"></i>
-                                    Popular Services
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Service</th>
-                                                <th>Bookings</th>
-                                                <th>Revenue</th>
-                                                <th>Popularity</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="popularServices">
-                                            <tr>
-                                                <td colspan="4" class="text-center text-muted py-3">
-                                                    Loading service data...
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- Charts -->
+<div class="grid grid-2 gap-3 mb-3">
+    <div class="card">
+        <h3 class="mb-3">Revenue Trend</h3>
+        <div id="revenueTrendChart" style="min-height: 300px;"></div>
+    </div>
+    <div class="card">
+        <h3 class="mb-3">Popular Services</h3>
+        <div id="servicesChart" style="min-height: 300px;"></div>
+    </div>
+</div>
 
-                <!-- Detailed Reports -->
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card report-card">
-                            <div class="card-header">
-                                <h5 class="card-title mb-0">
-                                    <i class="fas fa-table"></i>
-                                    Appointment Analytics
-                                </h5>
-                                <div class="filter-btn-group">
-                                    <button class="btn btn-sm btn-outline-primary active" data-filter="all">All</button>
-                                    <button class="btn btn-sm btn-outline-success" data-filter="completed">Completed</button>
-                                    <button class="btn btn-sm btn-outline-warning" data-filter="pending">Pending</button>
-                                    <button class="btn btn-sm btn-outline-danger" data-filter="cancelled">Cancelled</button>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Customer</th>
-                                                <th>Service</th>
-                                                <th>Barber</th>
-                                                <th>Status</th>
-                                                <th>Revenue</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="appointmentAnalytics">
-                                            <tr>
-                                                <td colspan="6" class="text-center text-muted py-4">
-                                                    Loading appointment analytics...
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+<div class="grid grid-2 gap-3">
+    <div class="card">
+        <h3 class="mb-3">Appointments by Status</h3>
+        <div id="statusDistChart" style="min-height: 300px;"></div>
+    </div>
+    <div class="card">
+        <h3 class="mb-3">Top Barbers</h3>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Barber</th>
+                        <th>Appointments</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John Doe</td>
+                        <td>45</td>
+                        <td>$2,250</td>
+                    </tr>
+                    <tr>
+                        <td>Jane Smith</td>
+                        <td>38</td>
+                        <td>$1,900</td>
+                    </tr>
+                    <tr>
+                        <td>Mike Johnson</td>
+                        <td>32</td>
+                        <td>$1,600</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
-    <script>
-        // Chart instances
-        let revenueChart, serviceChart;
-        let currentPeriod = 'today';
-
-        // Initialize charts
-        function initializeCharts() {
-            // Revenue Trend Chart
-            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-            revenueChart = new Chart(revenueCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Revenue ($)',
-                        data: [0, 0, 0, 0, 0, 0, 0],
-                        borderColor: '#198754',
-                        backgroundColor: 'rgba(25, 135, 84, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Revenue Trend Chart
+        const revenueOptions = {
+            series: [{
+                name: 'Revenue',
+                data: [1200, 1900, 1500, 2100, 1800, 2500, 2200]
+            }],
+            chart: {
+                type: 'area',
+                height: 300,
+                toolbar: { show: false },
+                background: 'transparent'
+            },
+            theme: { mode: 'dark' },
+            colors: ['#d4af37'],
+            stroke: { curve: 'smooth', width: 2 },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.1,
+                    stops: [0, 90, 100]
                 }
-            });
+            },
+            xaxis: {
+                categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                labels: { style: { colors: '#a0a0a0' } }
+            },
+            yaxis: {
+                labels: { style: { colors: '#a0a0a0' } }
+            },
+            grid: { borderColor: '#333' }
+        };
+        new ApexCharts(document.querySelector("#revenueTrendChart"), revenueOptions).render();
 
-            // Service Distribution Chart
-            const serviceCtx = document.getElementById('serviceChart').getContext('2d');
-            serviceChart = new Chart(serviceCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Haircut', 'Shave', 'Styling', 'Color', 'Other'],
-                    datasets: [{
-                        data: [0, 0, 0, 0, 0],
-                        backgroundColor: [
-                            '#0d6efd',
-                            '#198754',
-                            '#ffc107',
-                            '#dc3545',
-                            '#6f42c1'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
+        // Services Chart
+        const serviceOptions = {
+            series: [{
+                data: [400, 430, 448, 470, 540]
+            }],
+            chart: {
+                type: 'bar',
+                height: 300,
+                toolbar: { show: false },
+                background: 'transparent'
+            },
+            theme: { mode: 'dark' },
+            colors: ['#8b5cf6'],
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    horizontal: true,
                 }
-            });
-        }
+            },
+            xaxis: {
+                categories: ['Haircut', 'Beard Trim', 'Shave', 'Styling', 'Coloring'],
+                labels: { style: { colors: '#a0a0a0' } }
+            },
+            yaxis: {
+                labels: { style: { colors: '#a0a0a0' } }
+            },
+            grid: { borderColor: '#333' }
+        };
+        new ApexCharts(document.querySelector("#servicesChart"), serviceOptions).render();
 
-        // Load report data
-        function loadReports(period = 'today') {
-            currentPeriod = period;
-            
-            // Show loading states
-            document.getElementById('totalRevenue').textContent = '0.00';
-            document.getElementById('totalAppointments').textContent = '0';
-            document.getElementById('newCustomers').textContent = '0';
-            document.getElementById('avgRating').textContent = '0.0';
+        // Status Distribution Chart
+        const statusOptions = {
+            series: [44, 55, 13, 43],
+            chart: {
+                type: 'donut',
+                height: 300,
+                background: 'transparent'
+            },
+            theme: { mode: 'dark' },
+            colors: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444'],
+            labels: ['Completed', 'Pending', 'In Progress', 'Cancelled'],
+            legend: { position: 'bottom', labels: { colors: '#a0a0a0' } },
+            stroke: { show: false }
+        };
+        new ApexCharts(document.querySelector("#statusDistChart"), statusOptions).render();
+    });
 
-            // Update active period button
-            document.querySelectorAll('[data-period]').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('data-period') === period) {
-                    btn.classList.add('active');
-                }
-            });
-
-            // Simulate API call to fetch report data
-            simulateReportData(period);
-        }
-
-        // Simulate report data (replace with actual API calls)
-        function simulateReportData(period) {
-            // Simulate API delay
-            setTimeout(() => {
-                // Sample data for demonstration
-                const sampleData = {
-                    today: {
-                        revenue: 1250.75,
-                        appointments: 18,
-                        newCustomers: 3,
-                        avgRating: 4.7,
-                        revenueTrend: 12.5,
-                        appointmentsTrend: 8.3,
-                        customersTrend: 15.0,
-                        ratingsTrend: 2.1
-                    },
-                    week: {
-                        revenue: 8450.25,
-                        appointments: 112,
-                        newCustomers: 18,
-                        avgRating: 4.6,
-                        revenueTrend: -3.2,
-                        appointmentsTrend: 5.7,
-                        customersTrend: 12.3,
-                        ratingsTrend: -1.2
-                    },
-                    month: {
-                        revenue: 32450.80,
-                        appointments: 428,
-                        newCustomers: 65,
-                        avgRating: 4.5,
-                        revenueTrend: 8.9,
-                        appointmentsTrend: 12.4,
-                        customersTrend: 9.8,
-                        ratingsTrend: 0.5
-                    },
-                    year: {
-                        revenue: 389450.60,
-                        appointments: 5120,
-                        newCustomers: 780,
-                        avgRating: 4.4,
-                        revenueTrend: 15.3,
-                        appointmentsTrend: 18.7,
-                        customersTrend: 22.1,
-                        ratingsTrend: 1.8
-                    }
-                };
-
-                const data = sampleData[period] || sampleData.today;
-
-                // Update quick stats
-                updateQuickStats(data);
-                
-                // Update charts
-                updateCharts(period);
-                
-                // Update tables
-                updateTables();
-
-            }, 1000);
-        }
-
-        function updateQuickStats(data) {
-            // Update values
-            document.getElementById('totalRevenue').textContent = data.revenue.toLocaleString('en-US', {minimumFractionDigits: 2});
-            document.getElementById('totalAppointments').textContent = data.appointments.toLocaleString();
-            document.getElementById('newCustomers').textContent = data.newCustomers.toLocaleString();
-            document.getElementById('avgRating').textContent = data.avgRating.toFixed(1);
-
-            // Update trends with icons and colors
-            updateTrendElement('revenueTrend', data.revenueTrend);
-            updateTrendElement('appointmentsTrend', data.appointmentsTrend);
-            updateTrendElement('customersTrend', data.customersTrend);
-            updateTrendElement('ratingsTrend', data.ratingsTrend);
-        }
-
-        function updateTrendElement(elementId, trendValue) {
-            const element = document.getElementById(elementId);
-            const absValue = Math.abs(trendValue);
-            
-            if (trendValue > 0) {
-                element.className = 'trend-up';
-                element.innerHTML = `<i class="fas fa-arrow-up"></i> ${absValue}% from last period`;
-            } else if (trendValue < 0) {
-                element.className = 'trend-down';
-                element.innerHTML = `<i class="fas fa-arrow-down"></i> ${absValue}% from last period`;
-            } else {
-                element.className = 'trend-neutral';
-                element.innerHTML = `<i class="fas fa-minus"></i> 0% from last period`;
-            }
-        }
-
-        function updateCharts(period) {
-            // Sample chart data based on period
-            const chartData = {
-                today: {
-                    revenue: [150, 180, 220, 190, 210, 180, 120],
-                    services: [40, 25, 15, 12, 8]
-                },
-                week: {
-                    revenue: [1200, 1350, 1100, 1400, 1300, 1150, 1000],
-                    services: [35, 28, 18, 12, 7]
-                },
-                month: {
-                    revenue: [8500, 9200, 7800, 9500, 8800, 8200, 7500],
-                    services: [38, 26, 16, 14, 6]
-                },
-                year: {
-                    revenue: [32000, 35000, 31000, 34000, 33000, 30000, 28000],
-                    services: [42, 24, 15, 13, 6]
-                }
-            };
-
-            const data = chartData[period] || chartData.today;
-
-            // Update revenue chart
-            revenueChart.data.datasets[0].data = data.revenue;
-            revenueChart.update();
-
-            // Update service chart
-            serviceChart.data.datasets[0].data = data.services;
-            serviceChart.update();
-        }
-
-        function updateTables() {
-            // Sample barber performance data
-            const barberPerformance = [
-                { name: 'John Barber', appointments: 45, revenue: 5625.00, rating: 4.8 },
-                { name: 'Mike Styles', appointments: 38, revenue: 4750.00, rating: 4.6 },
-                { name: 'David Cutz', appointments: 32, revenue: 4000.00, rating: 4.4 },
-                { name: 'Chris Clipper', appointments: 28, revenue: 3500.00, rating: 4.7 },
-                { name: 'Alex Trim', appointments: 25, revenue: 3125.00, rating: 4.5 }
-            ];
-
-            // Sample popular services data
-            const popularServices = [
-                { name: 'Classic Haircut', bookings: 85, revenue: 2125.00, popularity: 'High' },
-                { name: 'Beard Trim', bookings: 62, revenue: 1550.00, popularity: 'High' },
-                { name: 'Hair Styling', bookings: 45, revenue: 1575.00, popularity: 'Medium' },
-                { name: 'Hot Towel Shave', bookings: 38, revenue: 1520.00, popularity: 'Medium' },
-                { name: 'Hair Color', bookings: 25, revenue: 1250.00, popularity: 'Low' }
-            ];
-
-            // Sample appointment analytics data
-            const appointmentAnalytics = [
-                { date: '2024-01-15', customer: 'John Smith', service: 'Classic Haircut', barber: 'John Barber', status: 'completed', revenue: 25.00 },
-                { date: '2024-01-15', customer: 'Mike Johnson', service: 'Beard Trim', barber: 'Mike Styles', status: 'completed', revenue: 20.00 },
-                { date: '2024-01-14', customer: 'Sarah Wilson', service: 'Hair Styling', service: 'David Cutz', status: 'completed', revenue: 35.00 },
-                { date: '2024-01-14', customer: 'Tom Brown', service: 'Hot Towel Shave', barber: 'Chris Clipper', status: 'pending', revenue: 30.00 },
-                { date: '2024-01-13', customer: 'Lisa Davis', service: 'Hair Color', barber: 'Alex Trim', status: 'completed', revenue: 50.00 }
-            ];
-
-            // Update barber performance table
-            updateTable('barberPerformance', barberPerformance, (item) => `
-                <tr>
-                    <td>${item.name}</td>
-                    <td>${item.appointments}</td>
-                    <td>$${item.revenue.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                    <td>${item.rating}/5</td>
-                </tr>
-            `);
-
-            // Update popular services table
-            updateTable('popularServices', popularServices, (item) => `
-                <tr>
-                    <td>${item.name}</td>
-                    <td>${item.bookings}</td>
-                    <td>$${item.revenue.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                    <td>
-                        <span class="badge ${getPopularityBadgeClass(item.popularity)}">
-                            ${item.popularity}
-                        </span>
-                    </td>
-                </tr>
-            `);
-
-            // Update appointment analytics table
-            updateTable('appointmentAnalytics', appointmentAnalytics, (item) => `
-                <tr>
-                    <td>${new Date(item.date).toLocaleDateString()}</td>
-                    <td>${item.customer}</td>
-                    <td>${item.service}</td>
-                    <td>${item.barber}</td>
-                    <td>
-                        <span class="badge ${getStatusBadgeClass(item.status)}">
-                            ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                        </span>
-                    </td>
-                    <td>$${item.revenue.toFixed(2)}</td>
-                </tr>
-            `);
-        }
-
-        function updateTable(tableId, data, rowTemplate) {
-            const tableBody = document.getElementById(tableId);
-            tableBody.innerHTML = data.map(rowTemplate).join('');
-        }
-
-        function getPopularityBadgeClass(popularity) {
-            switch (popularity.toLowerCase()) {
-                case 'high': return 'bg-success';
-                case 'medium': return 'bg-warning';
-                case 'low': return 'bg-secondary';
-                default: return 'bg-secondary';
-            }
-        }
-
-        function getStatusBadgeClass(status) {
-            switch (status) {
-                case 'completed': return 'bg-success';
-                case 'pending': return 'bg-warning';
-                case 'cancelled': return 'bg-danger';
-                default: return 'bg-secondary';
-            }
-        }
-
-        function exportReports() {
-            showToast('info', 'Export functionality will be implemented in the next phase');
-            // This would generate and download a PDF/Excel report
-        }
-
-        // Filter appointments by status
-        function filterAppointments(filter) {
-            const rows = document.querySelectorAll('#appointmentAnalytics tr');
-            rows.forEach(row => {
-                const statusCell = row.querySelector('td:nth-child(5)');
-                if (statusCell) {
-                    const status = statusCell.textContent.toLowerCase().trim();
-                    if (filter === 'all' || status === filter) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                }
-            });
-
-            // Update active filter button
-            document.querySelectorAll('[data-filter]').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.getAttribute('data-filter') === filter) {
-                    btn.classList.add('active');
-                }
-            });
-        }
-
-        // Toast notification function
-        function showToast(type, message) {
-            let toastContainer = document.getElementById('toastContainer');
-            if (!toastContainer) {
-                toastContainer = document.createElement('div');
-                toastContainer.id = 'toastContainer';
-                toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-                document.body.appendChild(toastContainer);
-            }
-
-            const toastId = 'toast-' + Date.now();
-            const toastHtml = `
-                <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert">
-                    <div class="d-flex">
-                        <div class="toast-body">${message}</div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                    </div>
-                </div>
-            `;
-
-            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-            const toastElement = document.getElementById(toastId);
-            const toast = new bootstrap.Toast(toastElement);
-            toast.show();
-
-            toastElement.addEventListener('hidden.bs.toast', () => {
-                toastElement.remove();
-            });
-        }
-
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize charts
-            initializeCharts();
-            
-            // Load initial reports
-            loadReports('today');
-
-            // Period buttons
-            document.querySelectorAll('[data-period]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    loadReports(this.getAttribute('data-period'));
-                });
-            });
-
-            // Filter buttons
-            document.querySelectorAll('[data-filter]').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    filterAppointments(this.getAttribute('data-filter'));
-                });
-            });
-        });
-    </script>
-
-    <%- include('../partials/scripts') %>
-</body>
-</html>
+    function updateReports() {
+        // Logic to fetch new data based on date range
+        alert('This would fetch updated data from the server.');
+    }
+</script>

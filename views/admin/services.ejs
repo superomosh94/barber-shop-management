@@ -1,209 +1,199 @@
-<!-- Stats Cards -->
-<div class="grid grid-4 gap-3 mb-4">
-    <div class="card p-3 border-l-4 border-primary">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-primary mb-1">Total Services</div>
-                <div class="text-2xl font-bold text-primary">
-                    <%= services.length %>
-                </div>
-            </div>
-            <i class="fas fa-concierge-bell fa-2x text-primary opacity-50"></i>
-        </div>
-    </div>
-    <div class="card p-3 border-l-4 border-success">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-success mb-1">Active</div>
-                <div class="text-2xl font-bold text-success">
-                    <%= services.filter(s=> s.is_active).length %>
-                </div>
-            </div>
-            <i class="fas fa-check-circle fa-2x text-success opacity-50"></i>
-        </div>
-    </div>
-    <div class="card p-3 border-l-4 border-secondary">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-secondary mb-1">Inactive</div>
-                <div class="text-2xl font-bold text-secondary">
-                    <%= services.filter(s=> !s.is_active).length %>
-                </div>
-            </div>
-            <i class="fas fa-times-circle fa-2x text-secondary opacity-50"></i>
-        </div>
-    </div>
-    <div class="card p-3 border-l-4 border-info">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-info mb-1">Avg. Price</div>
-                <div class="text-2xl font-bold text-info">
-                    <% const activeServices=services.filter(s=> s.is_active);
-                        const avgPrice = activeServices.length > 0
-                        ? (activeServices.reduce((sum, service) => sum + parseFloat(service.price), 0) /
-                        activeServices.length).toFixed(2)
-                        : '0.00';
-                        %>
-                        $<%= avgPrice %>
-                </div>
-            </div>
-            <i class="fas fa-dollar-sign fa-2x text-info opacity-50"></i>
-        </div>
-    </div>
+<div class="page-header">
+    <h1><i class="fas fa-cut me-2"></i>Service Management</h1>
+    <p>Manage services and pricing</p>
 </div>
 
-<!-- Actions -->
-<div class="card mb-4">
-    <div class="card-body flex justify-between items-center">
-        <h3 class="card-title mb-0">Services List</h3>
-        <button class="btn btn-primary" onclick="openModal('newServiceModal')">
-            <i class="fas fa-plus mr-2"></i> Add New Service
-        </button>
-    </div>
-</div>
+<!-- Services Grid -->
+<div class="grid grid-3 gap-3">
+    <% if (services && services.length> 0) { %>
+        <% services.forEach(service=> { %>
+            <div class="card">
+                <div class="card-body">
+                    <div class="flex justify-between items-start mb-3">
+                        <h4 class="mb-0">
+                            <%= service.name %>
+                        </h4>
+                        <span class="badge badge-<%= service.is_active ? 'success' : 'error' %>">
+                            <%= service.is_active ? 'Active' : 'Inactive' %>
+                        </span>
+                    </div>
 
-<!-- Services List -->
-<div class="card">
-    <div class="card-body p-0">
-        <% if (services.length===0) { %>
-            <div class="text-center py-5">
-                <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
-                <h4>No Services Found</h4>
-                <p class="text-muted">There are no services in the system yet.</p>
-            </div>
-            <% } else { %>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Service Name</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% services.forEach(service=> { %>
-                                <tr>
-                                    <td class="font-medium">
-                                        <%= service.name %>
-                                    </td>
-                                    <td class="text-muted text-sm" style="max-width: 300px;">
-                                        <%= service.description || 'No description' %>
-                                    </td>
-                                    <td class="font-bold text-gold">$<%= service.price %>
-                                    </td>
-                                    <td><span class="badge badge-neutral">
-                                            <%= service.duration %> mins
-                                        </span></td>
-                                    <td>
-                                        <span class="badge badge-<%= service.is_active ? 'success' : 'secondary' %>">
-                                            <%= service.is_active ? 'Active' : 'Inactive' %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="flex gap-1">
-                                            <button class="btn btn-sm btn-outline"
-                                                onclick="toggleServiceStatus(<%= service.id %>, <%= !service.is_active %>)"
-                                                title="<%= service.is_active ? 'Deactivate' : 'Activate' %>">
-                                                <i class="fas fa-<%= service.is_active ? 'pause' : 'play' %>"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-primary"
-                                                onclick="editService(<%= service.id %>)" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger"
-                                                onclick="deleteService(<%= service.id %>)" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <% }); %>
-                        </tbody>
-                    </table>
+                    <div class="price-tag mb-3">
+                        $<%= service.price %>
+                            <span class="text-sm text-muted ml-2">
+                                <%= service.duration %> mins
+                            </span>
+                    </div>
+
+                    <p class="text-muted mb-4 text-sm" style="min-height: 40px;">
+                        <%= service.description || 'No description available' %>
+                    </p>
+
+                    <div class="flex gap-2">
+                        <button class="btn btn-sm btn-outline flex-1"
+                            onclick="editService(<%= JSON.stringify(service) %>)">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger flex-1" onclick="deleteService(<%= service.id %>)">
+                            <i class="fas fa-trash me-1"></i>Delete
+                        </button>
+                    </div>
                 </div>
-                <% } %>
-    </div>
+            </div>
+            <% }); %>
+
+                <!-- Add New Service Card -->
+                <div class="card border-dashed flex items-center justify-center p-5 cursor-pointer hover-bg-tertiary"
+                    onclick="openServiceModal()">
+                    <div class="text-center">
+                        <div class="avatar-circle mb-3 bg-tertiary text-primary mx-auto">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <h4>Add New Service</h4>
+                    </div>
+                </div>
+                <% } else { %>
+                    <div class="card col-span-3">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-cut fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No services available</p>
+                            <button class="btn btn-primary mt-2" onclick="openServiceModal()">
+                                <i class="fas fa-plus me-1"></i>Add First Service
+                            </button>
+                        </div>
+                    </div>
+                    <% } %>
 </div>
 
-<!-- New Service Modal -->
-<div id="newServiceModal" class="modal-overlay hidden"
-    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; align-items: center; justify-content: center;">
-    <div class="modal-content bg-primary p-4 rounded-lg shadow-lg" style="width: 100%; max-width: 500px;">
-        <div class="flex justify-between items-center mb-4 border-b border-color pb-2">
-            <h3 class="text-xl font-bold">Add New Service</h3>
-            <button onclick="closeModal('newServiceModal')" class="text-muted hover:text-white"><i
-                    class="fas fa-times"></i></button>
+<!-- Service Modal -->
+<div id="serviceModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Add Service</h5>
+            <button type="button" class="close" onclick="closeModal('serviceModal')">&times;</button>
         </div>
-
-        <form id="newServiceForm">
-            <div class="form-group mb-3">
-                <label class="form-label">Service Name *</label>
-                <input type="text" class="form-control" name="name" required>
-            </div>
-            <div class="form-group mb-3">
-                <label class="form-label">Description</label>
-                <textarea class="form-control" name="description" rows="3"></textarea>
-            </div>
-            <div class="grid grid-2 gap-3 mb-3">
+        <div class="modal-body">
+            <form id="serviceForm">
+                <input type="hidden" name="id" id="serviceId">
                 <div class="form-group">
-                    <label class="form-label">Price ($) *</label>
-                    <input type="number" class="form-control" name="price" required min="0" step="0.01">
+                    <label class="form-label">Service Name</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="grid grid-2 gap-2">
+                    <div class="form-group">
+                        <label class="form-label">Price ($)</label>
+                        <input type="number" name="price" class="form-control" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Duration (mins)</label>
+                        <input type="number" name="duration" class="form-control" required>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Duration (mins) *</label>
-                    <input type="number" class="form-control" name="duration" required min="5">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="3"></textarea>
                 </div>
-            </div>
-            <div class="form-group mb-4">
-                <label class="form-label">Status</label>
-                <select class="form-control" name="is_active">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                </select>
-            </div>
-
-            <div class="flex justify-end gap-2">
-                <button type="button" class="btn btn-outline" onclick="closeModal('newServiceModal')">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="createService()">Add Service</button>
-            </div>
-        </form>
+                <div class="form-group">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="is_active" checked>
+                        <span>Active Service</span>
+                    </label>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeModal('serviceModal')">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="saveService()">Save Service</button>
+        </div>
     </div>
 </div>
 
 <script>
-    function openModal(id) {
-        document.getElementById(id).classList.remove('hidden');
+    function openServiceModal() {
+        document.getElementById('serviceForm').reset();
+        document.getElementById('serviceId').value = '';
+        document.querySelector('#serviceModal .modal-title').textContent = 'Add Service';
+        document.getElementById('serviceModal').style.display = 'block';
     }
 
-    function closeModal(id) {
-        document.getElementById(id).classList.add('hidden');
+    function editService(service) {
+        document.getElementById('serviceId').value = service.id;
+        document.querySelector('input[name="name"]').value = service.name;
+        document.querySelector('input[name="price"]').value = service.price;
+        document.querySelector('input[name="duration"]').value = service.duration;
+        document.querySelector('textarea[name="description"]').value = service.description || '';
+        document.querySelector('input[name="is_active"]').checked = service.is_active;
+
+        document.querySelector('#serviceModal .modal-title').textContent = 'Edit Service';
+        document.getElementById('serviceModal').style.display = 'block';
     }
 
-    function toggleServiceStatus(id, isActive) {
-        if (!confirm('Are you sure?')) return;
-        alert('Status update functionality to be implemented');
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
     }
 
-    function createService() {
-        const form = document.getElementById('newServiceForm');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
-        alert('Create service functionality to be implemented');
-        closeModal('newServiceModal');
+    function saveService() {
+        const form = document.getElementById('serviceForm');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        data.is_active = form.querySelector('input[name="is_active"]').checked;
+
+        const id = data.id;
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/admin/api/services/${id}` : '/admin/api/services';
+
+        fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error saving service: ' + (data.error || 'Unknown error'));
+                }
+            });
     }
 
     function deleteService(id) {
-        if (!confirm('Are you sure?')) return;
-        alert('Delete functionality to be implemented');
+        if (confirm('Are you sure you want to delete this service?')) {
+            fetch(`/admin/api/services/${id}`, {
+                method: 'DELETE'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error deleting service: ' + (data.error || 'Unknown error'));
+                    }
+                });
+        }
     }
 
-    function editService(id) {
-        alert('Edit functionality to be implemented');
+    // Close modal when clicking outside
+    window.onclick = function (event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = "none";
+        }
     }
 </script>
+
+<style>
+    .price-tag {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-gold);
+    }
+
+    .border-dashed {
+        border: 2px dashed var(--border-color);
+        background: transparent;
+    }
+
+    .hover-bg-tertiary:hover {
+        background-color: var(--bg-tertiary);
+    }
+</style>

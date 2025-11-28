@@ -79,7 +79,7 @@ const dashboardController = {
                 where: { status: 'pending' }
             });
 
-            res.render('admin/admin-dashboard', {
+            res.render('admin/dashboard', {
                 title: 'Admin Dashboard - Classic Cuts',
                 layout: 'admin-layout',
                 admin: req.session.admin,

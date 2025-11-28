@@ -1,266 +1,206 @@
-<!-- Stats Cards -->
-<div class="grid grid-4 gap-3 mb-4">
-    <div class="card p-3 border-l-4 border-primary">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-primary mb-1">Total</div>
-                <div class="text-2xl font-bold text-primary">
-                    <%= appointments.length %>
-                </div>
-            </div>
-            <i class="fas fa-calendar fa-2x text-primary opacity-50"></i>
-        </div>
-    </div>
-    <div class="card p-3 border-l-4 border-warning">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-warning mb-1">Pending</div>
-                <div class="text-2xl font-bold text-warning">
-                    <%= appointments.filter(a=> a.status === 'pending').length %>
-                </div>
-            </div>
-            <i class="fas fa-clock fa-2x text-warning opacity-50"></i>
-        </div>
-    </div>
-    <div class="card p-3 border-l-4 border-success">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-success mb-1">Confirmed</div>
-                <div class="text-2xl font-bold text-success">
-                    <%= appointments.filter(a=> a.status === 'confirmed').length %>
-                </div>
-            </div>
-            <i class="fas fa-check-circle fa-2x text-success opacity-50"></i>
-        </div>
-    </div>
-    <div class="card p-3 border-l-4 border-info">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-info mb-1">Completed</div>
-                <div class="text-2xl font-bold text-info">
-                    <%= appointments.filter(a=> a.status === 'completed').length %>
-                </div>
-            </div>
-            <i class="fas fa-check-double fa-2x text-info opacity-50"></i>
-        </div>
-    </div>
+<div class="page-header">
+    <h1><i class="fas fa-calendar-check me-2"></i>Appointment Management</h1>
+    <p>Manage all customer appointments</p>
 </div>
 
-<!-- Filters & Actions -->
-<div class="card mb-4">
-    <div class="card-header flex justify-between items-center">
-        <h3 class="card-title">Filters</h3>
-        <button class="btn btn-primary" onclick="openModal('newAppointmentModal')">
-            <i class="fas fa-plus mr-2"></i> New Appointment
-        </button>
-    </div>
+<!-- Filters -->
+<div class="card mb-3">
     <div class="card-body">
-        <div class="flex flex-wrap gap-3">
-            <div class="flex-1">
-                <label class="form-label">Status</label>
-                <div class="flex gap-2">
-                    <a href="/admin/appointments"
-                        class="btn btn-sm <%= !currentStatus ? 'btn-primary' : 'btn-outline' %>">All</a>
-                    <a href="/admin/appointments?status=pending"
-                        class="btn btn-sm <%= currentStatus === 'pending' ? 'btn-primary' : 'btn-outline' %>">Pending</a>
-                    <a href="/admin/appointments?status=confirmed"
-                        class="btn btn-sm <%= currentStatus === 'confirmed' ? 'btn-primary' : 'btn-outline' %>">Confirmed</a>
-                    <a href="/admin/appointments?status=completed"
-                        class="btn btn-sm <%= currentStatus === 'completed' ? 'btn-primary' : 'btn-outline' %>">Completed</a>
-                    <a href="/admin/appointments?status=cancelled"
-                        class="btn btn-sm <%= currentStatus === 'cancelled' ? 'btn-primary' : 'btn-outline' %>">Cancelled</a>
-                </div>
+        <form method="GET" action="/admin/appointments" class="flex gap-2 items-end flex-wrap">
+            <div class="form-group mb-0">
+                <label class="form-label text-sm">Status</label>
+                <select name="status" class="form-control">
+                    <option value="all" <%=currentStatus==='all' ? 'selected' : '' %>>All Statuses</option>
+                    <option value="pending" <%=currentStatus==='pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="confirmed" <%=currentStatus==='confirmed' ? 'selected' : '' %>>Confirmed</option>
+                    <option value="completed" <%=currentStatus==='completed' ? 'selected' : '' %>>Completed</option>
+                    <option value="cancelled" <%=currentStatus==='cancelled' ? 'selected' : '' %>>Cancelled</option>
+                </select>
             </div>
-            <div class="flex-1">
-                <form method="GET" action="/admin/appointments" class="flex gap-2 items-end">
-                    <div class="flex-1">
-                        <label for="dateFilter" class="form-label">Date</label>
-                        <input type="date" class="form-control" name="date" value="<%= currentDate || '' %>"
-                            id="dateFilter">
+            <div class="form-group mb-0">
+                <label class="form-label text-sm">Date</label>
+                <input type="date" name="date" class="form-control" value="<%= currentDate || '' %>">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter me-1"></i>Filter
+            </button>
+            <% if (currentStatus || currentDate) { %>
+                <a href="/admin/appointments" class="btn btn-outline">
+                    <i class="fas fa-times me-1"></i>Clear
+                </a>
+                <% } %>
+                    <div class="ml-auto">
+                        <button type="button" class="btn btn-primary" onclick="openNewAppointmentModal()">
+                            <i class="fas fa-plus me-1"></i>New Appointment
+                        </button>
                     </div>
-                    <% if (currentStatus) { %>
-                        <input type="hidden" name="status" value="<%= currentStatus %>">
-                        <% } %>
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                            <% if (currentDate) { %>
-                                <a href="/admin/appointments<% if (currentStatus) { %>?status=<%= currentStatus %><% } %>"
-                                    class="btn btn-outline">Clear</a>
-                                <% } %>
-                </form>
-            </div>
-        </div>
+        </form>
     </div>
 </div>
 
-<!-- Appointments List -->
+<!-- Appointments Table -->
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Appointments List</h3>
+    <div class="card-header flex justify-between items-center">
+        <h5 class="mb-0">Appointments (<%= appointments.length %>)</h5>
     </div>
     <div class="card-body p-0">
-        <% if (appointments.length===0) { %>
-            <div class="text-center py-5">
-                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                <h4>No Appointments Found</h4>
-                <p class="text-muted">
-                    <% if (currentStatus || currentDate) { %>
-                        No appointments match your current filters.
-                        <% } else { %>
-                            There are no appointments scheduled yet.
-                            <% } %>
-                </p>
-            </div>
-            <% } else { %>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
+        <% if (appointments && appointments.length> 0) { %>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date & Time</th>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Barber</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% appointments.forEach(appointment=> { %>
                             <tr>
-                                <th>ID</th>
-                                <th>Customer</th>
-                                <th>Service</th>
-                                <th>Barber</th>
-                                <th>Date & Time</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% appointments.forEach(appointment=> { %>
-                                <tr>
-                                    <td><small class="text-muted">#<%= appointment.id %></small></td>
-                                    <td>
-                                        <div class="flex items-center gap-2">
-                                            <% if (appointment.customer && appointment.customer.avatar) { %>
-                                                <img src="<%= appointment.customer.avatar %>"
-                                                    class="avatar-sm rounded-full">
-                                                <% } else { %>
-                                                    <div
-                                                        class="avatar-sm rounded-full bg-tertiary flex items-center justify-center text-xs font-bold">
-                                                        <%= appointment.customer ? (appointment.customer.first_name
-                                                            || 'C' ).charAt(0).toUpperCase() : 'C' %>
-                                                    </div>
-                                                    <% } %>
-                                                        <div>
-                                                            <div class="font-medium">
-                                                                <%= appointment.customer ?
-                                                                    appointment.customer.first_name + ' ' +
-                                                                    appointment.customer.last_name : 'Unknown' %>
-                                                            </div>
-                                                            <div class="text-xs text-muted">
-                                                                <%= appointment.customer ? appointment.customer.phone
-                                                                    : '' %>
-                                                            </div>
-                                                        </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="font-medium">
-                                            <%= appointment.service ? appointment.service.name : 'Unknown' %>
-                                        </div>
-                                        <div class="text-xs text-muted">
-                                            <%= appointment.service ? appointment.service.duration + ' min' : '' %>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <%= appointment.barber ? appointment.barber.name : 'Unknown' %>
-                                    </td>
-                                    <td>
-                                        <div class="font-medium">
+                                <td><strong>#<%= appointment.id %></strong></td>
+                                <td>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold">
                                             <%= moment(appointment.appointment_date).format('MMM DD, YYYY') %>
-                                        </div>
-                                        <div class="text-xs text-muted">
-                                            <%= moment(appointment.appointment_date).format('h:mm A') %>
-                                        </div>
-                                    </td>
-                                    <td class="font-bold text-gold">$<%= appointment.total_price || (appointment.service
-                                            ? appointment.service.price : '0' ) %>
-                                    </td>
-                                    <td>
-                                        <span
-                                            class="badge badge-<%= appointment.status === 'confirmed' ? 'success' : (appointment.status === 'pending' ? 'warning' : (appointment.status === 'cancelled' ? 'error' : 'info')) %>">
-                                            <%= appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)
-                                                %>
                                         </span>
-                                    </td>
-                                    <td>
-                                        <div class="flex gap-1">
-                                            <% if (appointment.status==='pending' ) { %>
-                                                <button class="btn btn-sm btn-success"
-                                                    onclick="updateAppointmentStatus('<%= appointment.id %>', 'confirmed')"
-                                                    title="Confirm">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                                <% } %>
-                                                    <% if (appointment.status !=='cancelled' && appointment.status
-                                                        !=='completed' ) { %>
-                                                        <button class="btn btn-sm btn-danger"
-                                                            onclick="updateAppointmentStatus('<%= appointment.id %>', 'cancelled')"
-                                                            title="Cancel">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                        <% } %>
+                                        <span class="text-sm text-muted">
+                                            <%= moment(appointment.appointment_date).format('h:mm A') %>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex items-center gap-2">
+                                        <div class="avatar-circle sm">
+                                            <%= appointment.customer.name.charAt(0).toUpperCase() %>
                                         </div>
-                                    </td>
-                                </tr>
-                                <% }); %>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <% if (totalPages> 1) { %>
-                    <div class="flex justify-center mt-4 mb-4">
-                        <div class="btn-group">
-                            <% if (currentPageNum> 1) { %>
-                                <a href="/admin/appointments?page=<%= currentPageNum - 1 %>"
-                                    class="btn btn-outline">Previous</a>
-                                <% } %>
-                                    <% for(let i=1; i <=totalPages; i++) { %>
-                                        <a href="/admin/appointments?page=<%= i %>"
-                                            class="btn <%= i === currentPageNum ? 'btn-primary' : 'btn-outline' %>">
-                                            <%= i %>
-                                        </a>
-                                        <% } %>
-                                            <% if (currentPageNum < totalPages) { %>
-                                                <a href="/admin/appointments?page=<%= currentPageNum + 1 %>"
-                                                    class="btn btn-outline">Next</a>
+                                        <%= appointment.customer.name %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <%= appointment.service.name %>
+                                </td>
+                                <td>
+                                    <%= appointment.barber.name %>
+                                </td>
+                                <td>$<%= appointment.total_price %>
+                                </td>
+                                <td>
+                                    <span class="badge badge-<%= 
+                                        appointment.status === 'confirmed' ? 'success' : 
+                                        appointment.status === 'pending' ? 'warning' : 
+                                        appointment.status === 'completed' ? 'neutral' : 
+                                        appointment.status === 'cancelled' ? 'error' : 'neutral' 
+                                    %>">
+                                        <%= appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1) %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline dropdown-toggle" type="button">
+                                            Actions
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a href="#" class="dropdown-item"
+                                                onclick="viewAppointment(<%= appointment.id %>)">View Details</a>
+                                            <a href="#" class="dropdown-item"
+                                                onclick="editAppointment(<%= appointment.id %>)">Edit</a>
+                                            <div class="dropdown-divider"></div>
+                                            <% if (appointment.status==='pending' ) { %>
+                                                <a href="#" class="dropdown-item text-success"
+                                                    onclick="updateStatus(<%= appointment.id %>, 'confirmed')">Confirm</a>
                                                 <% } %>
+                                                    <% if (['pending', 'confirmed' ].includes(appointment.status)) { %>
+                                                        <a href="#" class="dropdown-item"
+                                                            onclick="updateStatus(<%= appointment.id %>, 'completed')">Mark
+                                                            Completed</a>
+                                                        <a href="#" class="dropdown-item text-danger"
+                                                            onclick="updateStatus(<%= appointment.id %>, 'cancelled')">Cancel</a>
+                                                        <% } %>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a href="#" class="dropdown-item text-danger"
+                                                                onclick="deleteAppointment(<%= appointment.id %>)">Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <% if (totalPages> 1) { %>
+                <div class="card-footer">
+                    <nav class="pagination-nav">
+                        <ul class="pagination">
+                            <% if (currentPageNum> 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page=<%= currentPageNum - 1 %><%= currentStatus ? '&status=' + currentStatus : '' %><%= currentDate ? '&date=' + currentDate : '' %>">
+                                        <i class="fas fa-chevron-left"></i> Previous
+                                    </a>
+                                </li>
+                                <% } %>
+
+                                    <% for (let i=1; i <=totalPages; i++) { %>
+                                        <li class="page-item <%= i === currentPageNum ? 'active' : '' %>">
+                                            <a class="page-link"
+                                                href="?page=<%= i %><%= currentStatus ? '&status=' + currentStatus : '' %><%= currentDate ? '&date=' + currentDate : '' %>">
+                                                <%= i %>
+                                            </a>
+                                        </li>
+                                        <% } %>
+
+                                            <% if (currentPageNum < totalPages) { %>
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                        href="?page=<%= currentPageNum + 1 %><%= currentStatus ? '&status=' + currentStatus : '' %><%= currentDate ? '&date=' + currentDate : '' %>">
+                                                        Next <i class="fas fa-chevron-right"></i>
+                                                    </a>
+                                                </li>
+                                                <% } %>
+                        </ul>
+                    </nav>
+                </div>
+                <% } %>
+                    <% } else { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No appointments found</p>
                         </div>
-                    </div>
-                    <% } %>
                         <% } %>
     </div>
 </div>
 
 <!-- New Appointment Modal -->
-<div id="newAppointmentModal" class="modal-overlay hidden"
-    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; align-items: center; justify-content: center;">
-    <div class="modal-content bg-primary p-4 rounded-lg shadow-lg"
-        style="width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
-        <div class="flex justify-between items-center mb-4 border-b border-color pb-2">
-            <h3 class="text-xl font-bold">Create New Appointment</h3>
-            <button onclick="closeModal('newAppointmentModal')" class="text-muted hover:text-white"><i
-                    class="fas fa-times"></i></button>
+<div id="appointmentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">New Appointment</h5>
+            <button type="button" class="close" onclick="closeModal('appointmentModal')">&times;</button>
         </div>
-
-        <form id="newAppointmentForm">
-            <div class="grid grid-2 gap-3 mb-3">
+        <div class="modal-body">
+            <form id="appointmentForm">
+                <input type="hidden" name="id" id="appointmentId">
                 <div class="form-group">
-                    <label class="form-label">Customer *</label>
-                    <select class="form-control" name="customer_id" required>
+                    <label class="form-label">Customer</label>
+                    <select name="customer_id" class="form-control" required>
                         <option value="">Select Customer</option>
                         <% customers.forEach(customer=> { %>
                             <option value="<%= customer.id %>">
-                                <%= customer.first_name %>
-                                    <%= customer.last_name %>
+                                <%= customer.name %> (<%= customer.phone %>)
                             </option>
                             <% }); %>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Service *</label>
-                    <select class="form-control" name="service_id" required>
+                    <label class="form-label">Service</label>
+                    <select name="service_id" class="form-control" required>
                         <option value="">Select Service</option>
                         <% services.forEach(service=> { %>
                             <option value="<%= service.id %>">
@@ -269,12 +209,9 @@
                             <% }); %>
                     </select>
                 </div>
-            </div>
-
-            <div class="grid grid-2 gap-3 mb-3">
                 <div class="form-group">
-                    <label class="form-label">Barber *</label>
-                    <select class="form-control" name="barber_id" required>
+                    <label class="form-label">Barber</label>
+                    <select name="barber_id" class="form-control" required>
                         <option value="">Select Barber</option>
                         <% barbers.forEach(barber=> { %>
                             <option value="<%= barber.id %>">
@@ -283,83 +220,112 @@
                             <% }); %>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Date *</label>
-                    <input type="date" class="form-control" name="appointment_date" required
-                        min="<%= new Date().toISOString().split('T')[0] %>">
-                </div>
-            </div>
-
-            <div class="grid grid-2 gap-3 mb-3">
-                <div class="form-group">
-                    <label class="form-label">Time *</label>
-                    <input type="time" class="form-control" name="appointment_time" required>
+                <div class="grid grid-2 gap-2">
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="appointment_date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Time</label>
+                        <input type="time" name="appointment_time" class="form-control" required>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Status *</label>
-                    <select class="form-control" name="status" required>
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-control">
                         <option value="pending">Pending</option>
                         <option value="confirmed">Confirmed</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="form-group mb-4">
-                <label class="form-label">Notes</label>
-                <textarea class="form-control" name="notes" rows="3"></textarea>
-            </div>
-
-            <div class="flex justify-end gap-2">
-                <button type="button" class="btn btn-outline"
-                    onclick="closeModal('newAppointmentModal')">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="createAppointment()">Create Appointment</button>
-            </div>
-        </form>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control" rows="3"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeModal('appointmentModal')">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="saveAppointment()">Save Appointment</button>
+        </div>
     </div>
 </div>
 
 <script>
-    function openModal(id) {
-        document.getElementById(id).classList.remove('hidden');
+    function openNewAppointmentModal() {
+        document.getElementById('appointmentForm').reset();
+        document.getElementById('appointmentId').value = '';
+        document.querySelector('#appointmentModal .modal-title').textContent = 'New Appointment';
+        document.getElementById('appointmentModal').style.display = 'block';
     }
 
-    function closeModal(id) {
-        document.getElementById(id).classList.add('hidden');
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
     }
 
-    function updateAppointmentStatus(id, status) {
-        if (!confirm('Are you sure?')) return;
-
-        fetch(`/admin/appointments/${id}/status`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) location.reload();
-                else alert(data.error || 'Error updating status');
-            });
-    }
-
-    function createAppointment() {
-        const form = document.getElementById('newAppointmentForm');
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
+    function updateStatus(id, status) {
+        if (confirm(`Are you sure you want to mark this appointment as ${status}?`)) {
+            fetch(`/admin/api/appointments/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error updating status: ' + data.error);
+                    }
+                });
         }
+    }
 
-        const formData = Object.fromEntries(new FormData(form));
+    function deleteAppointment(id) {
+        if (confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
+            fetch(`/admin/api/appointments/${id}`, {
+                method: 'DELETE'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error deleting appointment: ' + data.error);
+                    }
+                });
+        }
+    }
 
-        fetch('/admin/appointments', {
-            method: 'POST',
+    function saveAppointment() {
+        const form = document.getElementById('appointmentForm');
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        const id = data.id;
+
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? `/admin/api/appointments/${id}` : '/admin/api/appointments';
+
+        fetch(url, {
+            method: method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(data)
         })
             .then(res => res.json())
             .then(data => {
-                if (data.success) location.reload();
-                else alert(data.error || 'Error creating appointment');
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error saving appointment: ' + data.error);
+                }
             });
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function (event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = "none";
+        }
     }
 </script>

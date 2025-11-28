@@ -3,38 +3,31 @@ const requireAuth = (req, res, next) => {
     if (req.session.user) {
         return next();
     }
-    
+
     req.flash('error', 'Please log in to access this page');
     res.redirect('/login');
 };
 
-// Admin authentication middleware - UPDATED to check both session formats
+// Admin authentication middleware
 const requireAdminAuth = (req, res, next) => {
     // Check both session formats for admin users
     const adminUser = req.session.admin || req.session.user;
-    
-    console.log('🔒 Admin auth check:', {
-        hasAdminSession: !!req.session.admin,
-        hasUserSession: !!req.session.user,
-        userRole: req.session.user?.role,
-        adminRole: req.session.admin?.role
-    });
-    
+
     if (!adminUser) {
         req.flash('error', 'Please log in as administrator');
         return res.redirect('/login');
     }
-    
-    // Check if user has admin role (from either session format)
-    const isAdmin = adminUser.role === 'admin' || 
-                   adminUser.role === 'super_admin' || 
-                   adminUser.role === 'manager';
-    
+
+    // Check if user has admin role
+    const isAdmin = adminUser.role === 'admin' ||
+        adminUser.role === 'super_admin' ||
+        adminUser.role === 'manager';
+
     if (!isAdmin) {
         req.flash('error', 'Access denied. Admin privileges required.');
         return res.redirect('/customer/dashboard');
     }
-    
+
     next();
 };
 
@@ -42,10 +35,10 @@ const requireAdminAuth = (req, res, next) => {
 const redirectIfAuthenticated = (req, res, next) => {
     if (req.session.user) {
         // Check if it's an admin user logged in through customer login
-        if (req.session.user.role && 
-            (req.session.user.role === 'admin' || 
-             req.session.user.role === 'super_admin' || 
-             req.session.user.role === 'manager')) {
+        if (req.session.user.role &&
+            (req.session.user.role === 'admin' ||
+                req.session.user.role === 'super_admin' ||
+                req.session.user.role === 'manager')) {
             return res.redirect('/admin/dashboard');
         }
         return res.redirect('/customer/dashboard');
@@ -53,35 +46,35 @@ const redirectIfAuthenticated = (req, res, next) => {
     next();
 };
 
-// Check if admin is already logged in - UPDATED to check both session formats
+// Check if admin is already logged in
 const redirectIfAdminAuthenticated = (req, res, next) => {
     const adminUser = req.session.admin || req.session.user;
-    
-    if (adminUser && 
-        (adminUser.role === 'admin' || 
-         adminUser.role === 'super_admin' || 
-         adminUser.role === 'manager')) {
+
+    if (adminUser &&
+        (adminUser.role === 'admin' ||
+            adminUser.role === 'super_admin' ||
+            adminUser.role === 'manager')) {
         return res.redirect('/admin/dashboard');
     }
-    
+
     next();
 };
 
-// Role-based access control for admin - UPDATED to check both session formats
+// Role-based access control for admin
 const requireRole = (roles = []) => {
     return (req, res, next) => {
         const adminUser = req.session.admin || req.session.user;
-        
+
         if (!adminUser) {
             req.flash('error', 'Access denied. Please log in.');
             return res.redirect('/login');
         }
 
         // Check if user has admin role
-        const isAdmin = adminUser.role === 'admin' || 
-                       adminUser.role === 'super_admin' || 
-                       adminUser.role === 'manager';
-        
+        const isAdmin = adminUser.role === 'admin' ||
+            adminUser.role === 'super_admin' ||
+            adminUser.role === 'manager';
+
         if (!isAdmin) {
             req.flash('error', 'Access denied. Admin privileges required.');
             return res.redirect('/customer/dashboard');
@@ -96,21 +89,21 @@ const requireRole = (roles = []) => {
     };
 };
 
-// Check permission middleware - UPDATED to check both session formats
+// Check permission middleware
 const requirePermission = (resource, action) => {
     return (req, res, next) => {
         const adminUser = req.session.admin || req.session.user;
-        
+
         if (!adminUser) {
             req.flash('error', 'Access denied. Please log in.');
             return res.redirect('/login');
         }
 
         // Check if user has admin role
-        const isAdmin = adminUser.role === 'admin' || 
-                       adminUser.role === 'super_admin' || 
-                       adminUser.role === 'manager';
-        
+        const isAdmin = adminUser.role === 'admin' ||
+            adminUser.role === 'super_admin' ||
+            adminUser.role === 'manager';
+
         if (!isAdmin) {
             req.flash('error', 'Access denied. Admin privileges required.');
             return res.redirect('/customer/dashboard');
@@ -121,9 +114,9 @@ const requirePermission = (resource, action) => {
             return next();
         }
 
-        const hasPermission = adminUser.permissions && 
-                            adminUser.permissions[resource] && 
-                            adminUser.permissions[resource].includes(action);
+        const hasPermission = adminUser.permissions &&
+            adminUser.permissions[resource] &&
+            adminUser.permissions[resource].includes(action);
 
         if (!hasPermission) {
             req.flash('error', 'You do not have permission to perform this action.');
@@ -136,11 +129,11 @@ const requirePermission = (resource, action) => {
 
 // Optional: Add a debug middleware to check sessions
 const debugSession = (req, res, next) => {
-    console.log('🔍 Session Debug:', {
-        user: req.session.user,
-        admin: req.session.admin,
-        sessionId: req.sessionID
-    });
+    // console.log('🔍 Session Debug:', {
+    //     user: req.session.user,
+    //     admin: req.session.admin,
+    //     sessionId: req.sessionID
+    // });
     next();
 };
 

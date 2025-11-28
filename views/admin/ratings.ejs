@@ -1,222 +1,142 @@
-<!-- Stats Cards -->
-<div class="grid grid-4 gap-3 mb-4">
-    <div class="card p-3 border-l-4 border-primary">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-primary mb-1">Total Ratings</div>
-                <div class="text-2xl font-bold text-primary">
-                    <%= ratings.length %>
-                </div>
-            </div>
-            <i class="fas fa-star fa-2x text-primary opacity-50"></i>
-        </div>
-    </div>
-    <div class="card p-3 border-l-4 border-success">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-success mb-1">Approved</div>
-                <div class="text-2xl font-bold text-success">
-                    <%= ratings.filter(r=> r.is_approved).length %>
-                </div>
-            </div>
-            <i class="fas fa-check-circle fa-2x text-success opacity-50"></i>
-        </div>
-    </div>
-    <div class="card p-3 border-l-4 border-warning">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-warning mb-1">Pending</div>
-                <div class="text-2xl font-bold text-warning">
-                    <%= ratings.filter(r=> !r.is_approved).length %>
-                </div>
-            </div>
-            <i class="fas fa-clock fa-2x text-warning opacity-50"></i>
-        </div>
-    </div>
-    <div class="card p-3 border-l-4 border-info">
-        <div class="flex justify-between items-center">
-            <div>
-                <div class="text-xs font-bold uppercase text-info mb-1">Avg. Rating</div>
-                <div class="text-2xl font-bold text-info">
-                    <% const approvedRatings=ratings.filter(r=> r.is_approved);
-                        const avgRating = approvedRatings.length > 0
-                        ? (approvedRatings.reduce((sum, rating) => sum + parseFloat(rating.rating), 0) /
-                        approvedRatings.length).toFixed(1)
-                        : '0.0';
-                        %>
-                        <%= avgRating %>/5
-                </div>
-            </div>
-            <i class="fas fa-star-half-alt fa-2x text-info opacity-50"></i>
-        </div>
-    </div>
+<div class="page-header">
+    <h1><i class="fas fa-star me-2"></i>Rating Management</h1>
+    <p>Manage customer reviews and ratings</p>
 </div>
 
 <!-- Filters -->
-<div class="card mb-4">
+<div class="card mb-3">
     <div class="card-body">
-        <div class="flex gap-2">
-            <a href="/admin/ratings" class="btn btn-sm <%= !currentFilter ? 'btn-primary' : 'btn-outline' %>">All</a>
-            <a href="/admin/ratings?approved=true"
-                class="btn btn-sm <%= currentFilter === 'true' ? 'btn-primary' : 'btn-outline' %>">Approved</a>
-            <a href="/admin/ratings?approved=false"
-                class="btn btn-sm <%= currentFilter === 'false' ? 'btn-primary' : 'btn-outline' %>">Pending</a>
-        </div>
+        <form method="GET" action="/admin/ratings" class="flex gap-2">
+            <select name="approved" class="form-control" style="max-width: 200px;" onchange="this.form.submit()">
+                <option value="">All Ratings</option>
+                <option value="true" <%=currentFilter==='true' ? 'selected' : '' %>>Approved</option>
+                <option value="false" <%=currentFilter==='false' ? 'selected' : '' %>>Pending Approval</option>
+            </select>
+        </form>
     </div>
 </div>
 
 <!-- Ratings List -->
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Customer Ratings</h3>
-    </div>
-    <div class="card-body p-0">
-        <% if (ratings.length===0) { %>
-            <div class="text-center py-5">
-                <i class="fas fa-star fa-3x text-muted mb-3"></i>
-                <h4>No Ratings Found</h4>
-                <p class="text-muted">
-                    <% if (currentFilter !==undefined) { %>
-                        No <%= currentFilter==='true' ? 'approved' : 'pending' %> ratings found.
+<div class="grid gap-3">
+    <% if (ratings && ratings.length> 0) { %>
+        <% ratings.forEach(rating=> { %>
+            <div class="card">
+                <div class="card-body">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="avatar-circle">
+                                <%= rating.customer.name.charAt(0).toUpperCase() %>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">
+                                    <%= rating.customer.name %>
+                                </h5>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    <%= moment(rating.created_at).fromNow() %>
+                                </small>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="rating-stars mb-1" style="color: #fbbf24; font-size: 1.2rem;">
+                                <% for(let i=1; i <=5; i++) { %>
+                                    <i class="fas fa-star<%= i > rating.rating ? '-o' : '' %>"></i>
+                                    <% } %>
+                            </div>
+                            <span class="badge badge-<%= rating.is_approved ? 'success' : 'warning' %>">
+                                <%= rating.is_approved ? 'Approved' : 'Pending' %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="rating-content mb-3 p-3 bg-tertiary rounded">
+                        <p class="mb-2"><strong>Review:</strong>
+                            <%= rating.review || 'No written review' %>
+                        </p>
+                        <div class="text-sm text-muted border-t pt-2 mt-2">
+                            <span><i class="fas fa-cut me-1"></i>Service: <%= rating.appointment.service.name %></span>
+                            <span class="mx-2">•</span>
+                            <span><i class="fas fa-user-tie me-1"></i>Barber: <%= rating.barber.name %></span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <% if (!rating.is_approved) { %>
+                            <button class="btn btn-sm btn-success" onclick="updateApproval(<%= rating.id %>, true)">
+                                <i class="fas fa-check me-1"></i>Approve
+                            </button>
                             <% } else { %>
-                                There are no customer ratings yet.
+                                <button class="btn btn-sm btn-warning"
+                                    onclick="updateApproval(<%= rating.id %>, false)">
+                                    <i class="fas fa-ban me-1"></i>Unapprove
+                                </button>
                                 <% } %>
-                </p>
-            </div>
-            <% } else { %>
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Customer</th>
-                                <th>Barber</th>
-                                <th>Service</th>
-                                <th>Rating</th>
-                                <th>Comment</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% ratings.forEach(rating=> { %>
-                                <tr>
-                                    <td>
-                                        <div class="flex items-center gap-2">
-                                            <% if (rating.customer && rating.customer.avatar) { %>
-                                                <img src="<%= rating.customer.avatar %>" class="avatar-sm rounded-full">
-                                                <% } else { %>
-                                                    <div
-                                                        class="avatar-sm rounded-full bg-tertiary flex items-center justify-center text-xs font-bold">
-                                                        <%= rating.customer ?
-                                                            rating.customer.name.charAt(0).toUpperCase() : 'C' %>
-                                                    </div>
-                                                    <% } %>
-                                                        <div class="font-medium">
-                                                            <%= rating.customer ? rating.customer.name : 'Unknown' %>
-                                                        </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <%= rating.barber ? rating.barber.name : 'Unknown' %>
-                                    </td>
-                                    <td>
-                                        <%= rating.appointment && rating.appointment.service ?
-                                            rating.appointment.service.name : '-' %>
-                                    </td>
-                                    <td>
-                                        <div class="text-warning text-sm">
-                                            <% for (let i=1; i <=5; i++) { %>
-                                                <i class="fas fa-star<%= i > rating.rating ? '-o' : '' %>"></i>
-                                                <% } %>
-                                                    <span class="text-muted ml-1">(<%= rating.rating %>)</span>
-                                        </div>
-                                    </td>
-                                    <td class="text-sm text-muted"
-                                        style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        <%= rating.comment || 'No comment' %>
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-<%= rating.is_approved ? 'success' : 'warning' %>">
-                                            <%= rating.is_approved ? 'Approved' : 'Pending' %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="flex gap-1">
-                                            <% if (!rating.is_approved) { %>
-                                                <button class="btn btn-sm btn-success"
-                                                    onclick="approveRating(<%= rating.id %>, true)" title="Approve">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                                <% } else { %>
-                                                    <button class="btn btn-sm btn-warning"
-                                                        onclick="approveRating(<%= rating.id %>, false)"
-                                                        title="Unapprove">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                    <% } %>
-                                                        <button class="btn btn-sm btn-danger"
-                                                            onclick="deleteRating(<%= rating.id %>)" title="Delete">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <% }); %>
-                        </tbody>
-                    </table>
+                    </div>
                 </div>
+            </div>
+            <% }); %>
 
                 <!-- Pagination -->
                 <% if (totalPages> 1) { %>
-                    <div class="flex justify-center mt-4 mb-4">
-                        <div class="btn-group">
-                            <% if (currentPage> 1) { %>
-                                <a href="/admin/ratings?page=<%= currentPage - 1 %><%= currentFilter ? '&approved=' + currentFilter : '' %>"
-                                    class="btn btn-outline">Previous</a>
-                                <% } %>
-                                    <% for(let i=1; i <=totalPages; i++) { %>
-                                        <a href="/admin/ratings?page=<%= i %><%= currentFilter ? '&approved=' + currentFilter : '' %>"
-                                            class="btn <%= i === currentPage ? 'btn-primary' : 'btn-outline' %>">
-                                            <%= i %>
-                                        </a>
+                    <div class="card">
+                        <div class="card-body">
+                            <nav class="pagination-nav">
+                                <ul class="pagination justify-center mb-0">
+                                    <% if (currentPage> 1) { %>
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                href="?page=<%= currentPage - 1 %><%= currentFilter ? '&approved=' + currentFilter : '' %>">
+                                                <i class="fas fa-chevron-left"></i> Previous
+                                            </a>
+                                        </li>
                                         <% } %>
-                                            <% if (currentPage < totalPages) { %>
-                                                <a href="/admin/ratings?page=<%= currentPage + 1 %><%= currentFilter ? '&approved=' + currentFilter : '' %>"
-                                                    class="btn btn-outline">Next</a>
+
+                                            <% for (let i=1; i <=totalPages; i++) { %>
+                                                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                                    <a class="page-link"
+                                                        href="?page=<%= i %><%= currentFilter ? '&approved=' + currentFilter : '' %>">
+                                                        <%= i %>
+                                                    </a>
+                                                </li>
                                                 <% } %>
+
+                                                    <% if (currentPage < totalPages) { %>
+                                                        <li class="page-item">
+                                                            <a class="page-link"
+                                                                href="?page=<%= currentPage + 1 %><%= currentFilter ? '&approved=' + currentFilter : '' %>">
+                                                                Next <i class="fas fa-chevron-right"></i>
+                                                            </a>
+                                                        </li>
+                                                        <% } %>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                     <% } %>
-                        <% } %>
-    </div>
+                        <% } else { %>
+                            <div class="card">
+                                <div class="card-body text-center py-5">
+                                    <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No ratings found</p>
+                                </div>
+                            </div>
+                            <% } %>
 </div>
 
 <script>
-    function approveRating(id, approve) {
-        if (!confirm(`Are you sure you want to ${approve ? 'approve' : 'unapprove'} this rating?`)) return;
-
-        fetch(`/admin/ratings/${id}/approval`, {
+    function updateApproval(id, approved) {
+        fetch(`/admin/api/ratings/${id}/approval`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ is_approved: approve })
+            body: JSON.stringify({ is_approved: approved ? 'true' : 'false' })
         })
             .then(res => res.json())
             .then(data => {
-                if (data.success) location.reload();
-                else alert(data.error || 'Error updating rating');
-            });
-    }
-
-    function deleteRating(id) {
-        if (!confirm('Are you sure?')) return;
-
-        fetch(`/admin/ratings/${id}`, {
-            method: 'DELETE'
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) location.reload();
-                else alert(data.error || 'Error deleting rating');
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error updating rating: ' + data.error);
+                }
             });
     }
 </script>

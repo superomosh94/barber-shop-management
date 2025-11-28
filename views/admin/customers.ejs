@@ -1,57 +1,56 @@
-<!-- Filters & Actions -->
-<div class="card mb-4">
+<div class="page-header">
+    <h1><i class="fas fa-users me-2"></i>Customer Management</h1>
+    <p>View and manage all registered customers</p>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-3">
     <div class="card-body">
-        <div class="flex justify-between items-center">
-            <form method="GET" class="flex gap-2 flex-1 max-w-lg">
-                <div class="input-group flex-1">
-                    <input type="text" class="form-control" placeholder="Search customers..." name="search"
-                        value="<%= search || '' %>">
-                    <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
-                </div>
-            </form>
-            <div class="text-muted">
-                Total: <%= customers.length %> customers
-            </div>
-        </div>
+        <form method="GET" action="/admin/customers" class="flex gap-2">
+            <input type="text" name="search" class="form-control" placeholder="Search by name or email..."
+                value="<%= search || '' %>">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-1"></i>Search
+            </button>
+            <% if (search) { %>
+                <a href="/admin/customers" class="btn btn-outline">
+                    <i class="fas fa-times me-1"></i>Clear
+                </a>
+                <% } %>
+        </form>
     </div>
 </div>
 
-<!-- Customers List -->
+<!-- Customers Table -->
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Customers List</h3>
+    <div class="card-header flex justify-between items-center">
+        <h5 class="mb-0">All Customers (<%= customers.length %>)</h5>
     </div>
     <div class="card-body p-0">
         <% if (customers && customers.length> 0) { %>
-            <div class="table-responsive">
+            <div class="table-container">
                 <table class="table">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
+                            <th>Joined</th>
                             <th>Status</th>
-                            <th>Last Login</th>
-                            <th>Registered</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% customers.forEach(function(customer) { %>
+                        <% customers.forEach(customer=> { %>
                             <tr>
+                                <td><strong>#<%= customer.id %></strong></td>
                                 <td>
                                     <div class="flex items-center gap-2">
-                                        <% if (customer.avatar) { %>
-                                            <img src="<%= customer.avatar %>" class="avatar-sm rounded-full">
-                                            <% } else { %>
-                                                <div
-                                                    class="avatar-sm rounded-full bg-tertiary flex items-center justify-center text-xs font-bold">
-                                                    <i class="fas fa-user"></i>
-                                                </div>
-                                                <% } %>
-                                                    <span class="font-medium">
-                                                        <%= customer.name %>
-                                                    </span>
+                                        <div class="avatar-circle">
+                                            <%= customer.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <%= customer.name %>
                                     </div>
                                 </td>
                                 <td>
@@ -61,27 +60,18 @@
                                     <%= customer.phone || 'N/A' %>
                                 </td>
                                 <td>
+                                    <%= moment(customer.created_at).format('MMM DD, YYYY') %>
+                                </td>
+                                <td>
                                     <span class="badge badge-<%= customer.is_active ? 'success' : 'error' %>">
                                         <%= customer.is_active ? 'Active' : 'Inactive' %>
                                     </span>
                                 </td>
-                                <td class="text-sm text-muted">
-                                    <%= customer.last_login ? moment(customer.last_login).format('MMM D, YYYY')
-                                        : 'Never' %>
-                                </td>
-                                <td class="text-sm text-muted">
-                                    <%= moment(customer.createdAt).format('MMM D, YYYY') %>
-                                </td>
                                 <td>
                                     <div class="flex gap-1">
-                                        <button class="btn btn-sm btn-outline" title="View Details">
+                                        <button class="btn btn-sm btn-outline"
+                                            onclick="viewCustomer(<%= customer.id %>)">
                                             <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline text-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline text-error" title="Delete">
-                                            <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -93,30 +83,64 @@
 
             <!-- Pagination -->
             <% if (totalPages> 1) { %>
-                <div class="flex justify-center mt-4 mb-4">
-                    <div class="btn-group">
-                        <% if (currentPage> 1) { %>
-                            <a href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>"
-                                class="btn btn-outline">Previous</a>
-                            <% } %>
-                                <% for(let i=1; i <=totalPages; i++) { %>
-                                    <a href="?page=<%= i %><%= search ? '&search=' + search : '' %>"
-                                        class="btn <%= i === currentPage ? 'btn-primary' : 'btn-outline' %>">
-                                        <%= i %>
+                <div class="card-footer">
+                    <nav class="pagination-nav">
+                        <ul class="pagination">
+                            <% if (currentPage> 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page=<%= currentPage - 1 %><%= search ? '&search=' + search : '' %>">
+                                        <i class="fas fa-chevron-left"></i> Previous
                                     </a>
-                                    <% } %>
-                                        <% if (currentPage < totalPages) { %>
-                                            <a href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>"
-                                                class="btn btn-outline">Next</a>
-                                            <% } %>
-                    </div>
+                                </li>
+                                <% } %>
+
+                                    <% for (let i=1; i <=totalPages; i++) { %>
+                                        <% if (i===1 || i===totalPages || (i>= currentPage - 2 && i <= currentPage + 2))
+                                                { %>
+                                                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                                    <a class="page-link"
+                                                        href="?page=<%= i %><%= search ? '&search=' + search : '' %>">
+                                                        <%= i %>
+                                                    </a>
+                                                </li>
+                                                <% } else if (i===currentPage - 3 || i===currentPage + 3) { %>
+                                                    <li class="page-item disabled">
+                                                        <span class="page-link">...</span>
+                                                    </li>
+                                                    <% } %>
+                                                        <% } %>
+
+                                                            <% if (currentPage < totalPages) { %>
+                                                                <li class="page-item">
+                                                                    <a class="page-link"
+                                                                        href="?page=<%= currentPage + 1 %><%= search ? '&search=' + search : '' %>">
+                                                                        Next <i class="fas fa-chevron-right"></i>
+                                                                    </a>
+                                                                </li>
+                                                                <% } %>
+                        </ul>
+                    </nav>
                 </div>
                 <% } %>
                     <% } else { %>
                         <div class="text-center py-5">
                             <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">No Customers Found</h5>
+                            <p class="text-muted">
+                                <% if (search) { %>
+                                    No customers found matching "<%= search %>"
+                                        <% } else { %>
+                                            No customers registered yet
+                                            <% } %>
+                            </p>
                         </div>
                         <% } %>
     </div>
 </div>
+
+<script>
+    function viewCustomer(id) {
+        // Redirect to customer details or show modal
+        window.location.href = `/admin/customers/${id}`;
+    }
+</script>

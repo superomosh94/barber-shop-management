@@ -1,0 +1,156 @@
+<div class="container-fluid">
+    <div class="page-header">
+        <h1><i class="fas fa-cog me-2"></i>Settings</h1>
+        <p>Manage system settings and configurations</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- General Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>General Settings</h5>
+                </div>
+                <div class="card-body">
+                    <form id="generalSettingsForm">
+                        <div class="mb-3">
+                            <label class="form-label">Business Name</label>
+                            <input type="text" class="form-control" value="Classic Cuts Barber Shop"
+                                name="business_name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Business Email</label>
+                            <input type="email" class="form-control" value="info@classiccuts.com" name="business_email">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Business Phone</label>
+                            <input type="tel" class="form-control" value="+1 (555) 123-4567" name="business_phone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Business Address</label>
+                            <textarea class="form-control" rows="3"
+                                name="business_address">123 Main Street, City, State 12345</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Business Hours -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Business Hours</h5>
+                </div>
+                <div class="card-body">
+                    <form id="businessHoursForm">
+                        <div class="mb-3">
+                            <label class="form-label">Opening Time</label>
+                            <input type="time" class="form-control" value="09:00" name="opening_time">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Closing Time</label>
+                            <input type="time" class="form-control" value="19:00" name="closing_time">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Working Days</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked name="days[]" value="monday"
+                                    id="monday">
+                                <label class="form-check-label" for="monday">Monday</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked name="days[]" value="tuesday"
+                                    id="tuesday">
+                                <label class="form-check-label" for="tuesday">Tuesday</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked name="days[]" value="wednesday"
+                                    id="wednesday">
+                                <label class="form-check-label" for="wednesday">Wednesday</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked name="days[]" value="thursday"
+                                    id="thursday">
+                                <label class="form-check-label" for="thursday">Thursday</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked name="days[]" value="friday"
+                                    id="friday">
+                                <label class="form-check-label" for="friday">Friday</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" checked name="days[]" value="saturday"
+                                    id="saturday">
+                                <label class="form-check-label" for="saturday">Saturday</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="days[]" value="sunday"
+                                    id="sunday">
+                                <label class="form-check-label" for="sunday">Sunday</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Hours
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Notification Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Notifications</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" checked id="emailNotifications">
+                        <label class="form-check-label" for="emailNotifications">
+                            Email Notifications
+                        </label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" checked id="smsNotifications">
+                        <label class="form-check-label" for="smsNotifications">
+                            SMS Notifications
+                        </label>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" checked id="appointmentReminders">
+                        <label class="form-check-label" for="appointmentReminders">
+                            Appointment Reminders
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>System Information</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Version:</strong> 1.0.0</p>
+                    <p class="mb-2"><strong>Environment:</strong> Production</p>
+                    <p class="mb-2"><strong>Database:</strong> MySQL</p>
+                    <p class="mb-0"><strong>Last Backup:</strong> Today</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('generalSettingsForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        alert('Settings saved successfully!');
+    });
+
+    document.getElementById('businessHoursForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        alert('Business hours updated successfully!');
+    });
+</script>

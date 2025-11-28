@@ -193,9 +193,44 @@ const handleValidationErrors = (req, res, next) => {
                 errors: errorMessages
             });
         } else {
-            // Web request
+            // Web request - FIXED: Use Referrer header instead of deprecated 'back'
             req.flash('error', errorMessages);
-            return res.redirect('back');
+            
+            // Get safe redirect URL
+            const getSafeRedirect = () => {
+                const referrer = req.get('Referrer');
+                // Basic security validation - only allow redirects to your own domain
+                if (referrer && referrer.startsWith(`${req.protocol}://${req.get('host')}`)) {
+                    return referrer;
+                }
+                return '/';
+            };
+            
+            return res.redirect(getSafeRedirect());
+        }
+    }
+    
+    next();
+};
+
+// Alternative simpler version if you don't need domain validation
+const handleValidationErrorsSimple = (req, res, next) => {
+    const errors = validationResult(req);
+    
+    if (!errors.isEmpty()) {
+        const errorMessages = errors.array().map(error => error.msg);
+        
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+            // API request
+            return res.status(422).json({
+                success: false,
+                errors: errorMessages
+            });
+        } else {
+            // Web request - Simple fix without domain validation
+            req.flash('error', errorMessages);
+            const referrer = req.get('Referrer') || '/';
+            return res.redirect(referrer);
         }
     }
     
@@ -210,5 +245,6 @@ module.exports = {
     validateRating,
     validateService,
     validateBarber,
-    handleValidationErrors
+    handleValidationErrors,
+    handleValidationErrorsSimple // Export both versions for flexibility
 };

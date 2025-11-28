@@ -1,443 +1,641 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>
+        <%= title || 'Appointment History - Classic Cuts' %>
+    </title>
+
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --light: #f8f9fa;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+
+            --text-primary: #ffffff;
+            --text-secondary: #d4d4d4;
+            --text-muted: #888888;
+
+            --gold: #ffd700;
+            --gold-light: #ffe55c;
+            --gold-dark: #d4af37;
+
+            --purple: #9333ea;
+            --purple-light: #a855f7;
+            --purple-dark: #7e22ce;
+
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+
+            --border-color: #333333;
+            --border-radius: 8px;
+            --border-radius-lg: 12px;
+
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.4);
+
+            --transition-fast: all 0.2s ease;
+            --transition-normal: all 0.3s ease;
         }
-        
+
         body {
-            background-color: #f5f6fa;
             font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
         }
-        
+
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Page Header */
         .page-header {
-            background: linear-gradient(135deg, var(--primary), #1a2530);
-            color: white;
-            padding: 2rem 0;
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--purple) 100%);
+            padding: 2rem;
+            border-radius: var(--border-radius-lg);
             margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
         }
-        
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Filter Card */
+        .filter-card {
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-control,
+        .form-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            transition: var(--transition-fast);
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .form-select option {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 0.9375rem;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+        }
+
+        .btn-outline:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Appointment Card */
         .appointment-card {
-            background: white;
-            border-radius: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
             padding: 1.5rem;
             margin-bottom: 1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border: 1px solid #e9ecef;
+            transition: var(--transition-normal);
         }
-        
+
+        .appointment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--gold);
+        }
+
+        .appointment-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1fr 1fr 2fr;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .appointment-service h6 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--gold);
+        }
+
+        .appointment-service p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .appointment-datetime p {
+            margin: 0;
+            font-size: 0.9375rem;
+        }
+
+        .appointment-datetime .date {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .appointment-datetime .time {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .appointment-price {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .appointment-price .duration {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            display: block;
+            margin-top: 0.25rem;
+        }
+
+        /* Status Badges */
         .status-badge {
-            padding: 0.25rem 0.75rem;
+            padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
-        .badge-pending { background: #fff3cd; color: #856404; }
-        .badge-confirmed { background: #d1ecf1; color: #0c5460; }
-        .badge-completed { background: #d4edda; color: #155724; }
-        .badge-cancelled { background: #f8d7da; color: #721c24; }
-        
-        .filter-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
+
+        .status-badge i {
+            font-size: 0.5rem;
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .badge-confirmed {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+
+        .badge-completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge-cancelled {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+
+        /* Appointment Actions */
+        .appointment-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius-lg);
+            border: 2px dashed var(--border-color);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h4 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
             margin-bottom: 2rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        
-        .nav-customer {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .nav-customer .nav-link {
-            color: var(--primary);
-            font-weight: 500;
+
+        /* Alert Messages */
+        .alert {
             padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
-        
-        .nav-customer .nav-link.active {
-            color: var(--secondary);
-            border-bottom: 3px solid var(--secondary);
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
         }
-        
-        .export-btn {
-            background: var(--success);
-            color: white;
-            border: none;
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
         }
-        
-        .export-btn:hover {
-            background: #219653;
-            color: white;
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            list-style: none;
+        }
+
+        .pagination .page-item {
+            display: inline-block;
+        }
+
+        .pagination .page-link {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            transition: var(--transition-fast);
+        }
+
+        .pagination .page-link:hover {
+            background: var(--gold);
+            color: #000;
+            border-color: var(--gold);
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--gold);
+            color: #000;
+            border-color: var(--gold);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .appointment-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .appointment-actions {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .page-header {
+                padding: 1.5rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
+
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg nav-customer">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/customer/dashboard" style="color: var(--primary);">
-                <i class="fas fa-cut me-2"></i>Classic Cuts
-            </a>
-            
-            <div class="navbar-nav ms-auto">
-                <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user-circle me-1"></i> <%= user.name %>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/customer/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
-                        <li><a class="dropdown-item" href="/customer/appointment-history"><i class="fas fa-history me-2"></i>Appointments</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
+    <div class="dashboard-layout">
+        <%- include('../partials/customer-sidebar', { user: user, currentPage: 'history' , pendingAppointmentsCount:
+            typeof pendingAppointmentsCount !=='undefined' ? pendingAppointmentsCount : 0 }) %>
 
-    <!-- Customer Navigation -->
-    <div class="nav-customer">
-        <div class="container">
-            <ul class="nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="/customer/dashboard">
-                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/customer/profile">
-                        <i class="fas fa-user me-2"></i>Profile
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/customer/appointment-history">
-                        <i class="fas fa-history me-2"></i>Appointments
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/booking">
-                        <i class="fas fa-calendar-plus me-2"></i>Book Now
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Flash Messages -->
-    <% if (typeof messages !== 'undefined' && messages.error) { %>
-        <div class="container mt-3">
-            <div class="alert alert-danger alert-dismissible fade show">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                <%= messages.error %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </div>
-    <% } %>
-    
-    <% if (typeof messages !== 'undefined' && messages.success) { %>
-        <div class="container mt-3">
-            <div class="alert alert-success alert-dismissible fade show">
-                <i class="fas fa-check-circle me-2"></i>
-                <%= messages.success %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </div>
-    <% } %>
-
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1 class="h2 mb-2">Appointment History</h1>
-                    <p class="mb-0">View and manage all your past and upcoming appointments</p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <div class="btn-group">
-                        <a href="/customer/export-appointments?format=csv" class="btn btn-success">
-                            <i class="fas fa-download me-2"></i>Export CSV
-                        </a>
-                        <a href="/booking" class="btn btn-light">
-                            <i class="fas fa-calendar-plus me-2"></i>Book New
-                        </a>
+            <div class="main-content">
+                <!-- Flash Messages -->
+                <% if (typeof error !=='undefined' && error) { %>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>
+                            <%= error %>
+                        </span>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <% } %>
 
-    <div class="container">
-        <!-- Filters -->
-        <div class="filter-card">
-            <form method="GET" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Status</label>
-                    <select name="status" class="form-select">
-                        <option value="all" <%= currentStatus === 'all' ? 'selected' : '' %>>All Statuses</option>
-                        <option value="pending" <%= currentStatus === 'pending' ? 'selected' : '' %>>Pending</option>
-                        <option value="confirmed" <%= currentStatus === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
-                        <option value="completed" <%= currentStatus === 'completed' ? 'selected' : '' %>>Completed</option>
-                        <option value="cancelled" <%= currentStatus === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">From Date</label>
-                    <input type="date" name="date_from" class="form-control" value="<%= dateFrom || '' %>">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">To Date</label>
-                    <input type="date" name="date_to" class="form-control" value="<%= dateTo || '' %>">
-                </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-filter me-2"></i>Filter
-                    </button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Appointments List -->
-        <% if (appointments.length > 0) { %>
-            <% appointments.forEach(appointment => { %>
-                <div class="appointment-card">
-                    <div class="row align-items-center">
-                        <div class="col-md-3">
-                            <h6 class="mb-1"><%= appointment.service.name %></h6>
-                            <p class="text-muted mb-0 small">
-                                <i class="fas fa-user me-1"></i><%= appointment.barber.name %>
-                            </p>
-                        </div>
-                        <div class="col-md-2">
-                            <p class="mb-1">
-                                <i class="fas fa-clock me-1"></i>
-                                <%= moment(appointment.appointment_date).format('MMM DD, YYYY') %>
-                            </p>
-                            <p class="text-muted mb-0 small">
-                                <%= moment(appointment.appointment_date).format('h:mm A') %>
-                            </p>
-                        </div>
-                        <div class="col-md-2">
-                            <p class="mb-0">$<%= appointment.service.price %></p>
-                            <p class="text-muted mb-0 small"><%= appointment.service.duration %> mins</p>
-                        </div>
-                        <div class="col-md-2">
-                            <span class="status-badge badge-<%= appointment.status %>">
-                                <%= appointment.status %>
-                            </span>
-                        </div>
-                        <div class="col-md-3 text-end">
-                            <% if (appointment.status === 'completed' && !appointment.rating) { %>
-                                <a href="/ratings/create/<%= appointment.id %>" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-star me-1"></i>Review
-                                </a>
+                        <% if (typeof success !=='undefined' && success) { %>
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i>
+                                <span>
+                                    <%= success %>
+                                </span>
+                            </div>
                             <% } %>
-                            
-                            <% if (appointment.status === 'completed' && appointment.rating) { %>
-                                <div class="text-warning">
-                                    <% for (let i = 1; i <= 5; i++) { %>
-                                        <i class="fas fa-star<%= i > appointment.rating.rating ? '' : '' %>"></i>
-                                    <% } %>
+
+                                <!-- Page Header -->
+                                <div class="page-header">
+                                    <h1><i class="fas fa-history me-2"></i>Appointment History</h1>
+                                    <p>View and manage all your past and upcoming appointments</p>
                                 </div>
-                                <small class="text-muted">Reviewed</small>
-                            <% } %>
-                            
-                            <% if (['pending', 'confirmed'].includes(appointment.status)) { %>
-                                <button class="btn btn-sm btn-outline-danger" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#cancelModal<%= appointment.id %>">
-                                    <i class="fas fa-times me-1"></i>Cancel
-                                </button>
-                                
-                                <!-- Cancel Modal -->
-                                <div class="modal fade" id="cancelModal<%= appointment.id %>" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Cancel Appointment</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+                                <!-- Filters -->
+                                <div class="filter-card">
+                                    <form method="GET" action="/customer/appointment-history">
+                                        <div class="filter-row">
+                                            <div class="form-group">
+                                                <label class="form-label">Status</label>
+                                                <select name="status" class="form-select">
+                                                    <option value="all" <%=(typeof currentStatus !=='undefined' &&
+                                                        currentStatus==='all' ) ? 'selected' : '' %>>All Statuses
+                                                    </option>
+                                                    <option value="pending" <%=(typeof currentStatus !=='undefined' &&
+                                                        currentStatus==='pending' ) ? 'selected' : '' %>>Pending
+                                                    </option>
+                                                    <option value="confirmed" <%=(typeof currentStatus !=='undefined' &&
+                                                        currentStatus==='confirmed' ) ? 'selected' : '' %>>Confirmed
+                                                    </option>
+                                                    <option value="completed" <%=(typeof currentStatus !=='undefined' &&
+                                                        currentStatus==='completed' ) ? 'selected' : '' %>>Completed
+                                                    </option>
+                                                    <option value="cancelled" <%=(typeof currentStatus !=='undefined' &&
+                                                        currentStatus==='cancelled' ) ? 'selected' : '' %>>Cancelled
+                                                    </option>
+                                                </select>
                                             </div>
-                                            <form action="/customer/appointments/<%= appointment.id %>/cancel" method="POST">
-                                                <div class="modal-body">
-                                                    <p>Are you sure you want to cancel this appointment?</p>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Reason for cancellation (optional)</label>
-                                                        <textarea name="cancellation_reason" class="form-control" rows="3"></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Appointment</button>
-                                                    <button type="submit" class="btn btn-danger">Cancel Appointment</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% } %>
-                            
-                            <button class="btn btn-sm btn-outline-secondary view-details" 
-                                    data-id="<%= appointment.id %>">
-                                <i class="fas fa-eye me-1"></i>Details
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            <% }); %>
-
-            <!-- Pagination -->
-            <% if (totalPages > 1) { %>
-                <nav class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <% if (currentPage > 1) { %>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<%= currentPage - 1 %><%= currentStatus !== 'all' ? '&status=' + currentStatus : '' %><%= dateFrom ? '&date_from=' + dateFrom : '' %><%= dateTo ? '&date_to=' + dateTo : '' %>">
-                                    Previous
-                                </a>
-                            </li>
-                        <% } %>
-                        
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                <a class="page-link" href="?page=<%= i %><%= currentStatus !== 'all' ? '&status=' + currentStatus : '' %><%= dateFrom ? '&date_from=' + dateFrom : '' %><%= dateTo ? '&date_to=' + dateTo : '' %>">
-                                    <%= i %>
-                                </a>
-                            </li>
-                        <% } %>
-                        
-                        <% if (currentPage < totalPages) { %>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<%= currentPage + 1 %><%= currentStatus !== 'all' ? '&status=' + currentStatus : '' %><%= dateFrom ? '&date_from=' + dateFrom : '' %><%= dateTo ? '&date_to=' + dateTo : '' %>">
-                                    Next
-                                </a>
-                            </li>
-                        <% } %>
-                    </ul>
-                </nav>
-            <% } %>
-        <% } else { %>
-            <div class="text-center py-5">
-                <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
-                <h4 class="text-muted">No appointments found</h4>
-                <p class="text-muted mb-4">Try adjusting your filters or book a new appointment</p>
-                <a href="/booking" class="btn btn-primary btn-lg">
-                    <i class="fas fa-calendar-plus me-2"></i>Book Your First Appointment
-                </a>
-            </div>
-        <% } %>
-    </div>
-
-    <!-- Appointment Details Modal -->
-    <div class="modal fade" id="appointmentDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Appointment Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="appointmentDetailsContent">
-                    <!-- Content loaded via AJAX -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // View appointment details
-            document.querySelectorAll('.view-details').forEach(button => {
-                button.addEventListener('click', async function() {
-                    const appointmentId = this.getAttribute('data-id');
-                    
-                    try {
-                        const response = await fetch(`/customer/appointments/${appointmentId}/details`);
-                        const result = await response.json();
-                        
-                        if (result.success) {
-                            const appointment = result.appointment;
-                            const modalContent = document.getElementById('appointmentDetailsContent');
-                            
-                            modalContent.innerHTML = `
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6>Service Details</h6>
-                                        <p><strong>Service:</strong> ${appointment.service.name}</p>
-                                        <p><strong>Price:</strong> $${appointment.service.price}</p>
-                                        <p><strong>Duration:</strong> ${appointment.service.duration} minutes</p>
-                                        ${appointment.service.description ? `<p><strong>Description:</strong> ${appointment.service.description}</p>` : ''}
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Barber Information</h6>
-                                        <p><strong>Barber:</strong> ${appointment.barber.name}</p>
-                                        ${appointment.barber.specialization ? `<p><strong>Specialization:</strong> ${appointment.barber.specialization}</p>` : ''}
-                                        ${appointment.barber.experience ? `<p><strong>Experience:</strong> ${appointment.barber.experience} years</p>` : ''}
-                                    </div>
-                                </div>
-                                <div class="row mt-3">
-                                    <div class="col-12">
-                                        <h6>Appointment Information</h6>
-                                        <p><strong>Date & Time:</strong> ${new Date(appointment.appointment_date).toLocaleString()}</p>
-                                        <p><strong>Status:</strong> <span class="badge bg-${getStatusColor(appointment.status)}">${appointment.status}</span></p>
-                                        ${appointment.notes ? `<p><strong>Notes:</strong> ${appointment.notes}</p>` : ''}
-                                    </div>
-                                </div>
-                                ${appointment.rating ? `
-                                <div class="row mt-3">
-                                    <div class="col-12">
-                                        <h6>Your Review</h6>
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="text-warning me-2">
-                                                ${generateStars(appointment.rating.rating)}
+                                            <div class="form-group">
+                                                <label class="form-label">From Date</label>
+                                                <input type="date" name="date_from" class="form-control"
+                                                    value="<%= typeof dateFrom !== 'undefined' ? dateFrom : '' %>">
                                             </div>
-                                            <span>${appointment.rating.rating}/5</span>
+                                            <div class="form-group">
+                                                <label class="form-label">To Date</label>
+                                                <input type="date" name="date_to" class="form-control"
+                                                    value="<%= typeof dateTo !== 'undefined' ? dateTo : '' %>">
+                                            </div>
+                                            <div class="form-group" style="align-self: flex-end;">
+                                                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                                    <i class="fas fa-filter"></i>Apply Filters
+                                                </button>
+                                            </div>
                                         </div>
-                                        ${appointment.rating.comment ? `<p><strong>Comment:</strong> ${appointment.rating.comment}</p>` : ''}
-                                        <small class="text-muted">Reviewed on ${new Date(appointment.rating.created_at).toLocaleDateString()}</small>
-                                    </div>
+                                    </form>
                                 </div>
-                                ` : ''}
-                            `;
-                            
-                            new bootstrap.Modal(document.getElementById('appointmentDetailsModal')).show();
-                        }
-                    } catch (error) {
-                        console.error('Error fetching appointment details:', error);
-                    }
-                });
-            });
-            
-            function getStatusColor(status) {
-                const colors = {
-                    'pending': 'warning',
-                    'confirmed': 'info',
-                    'completed': 'success',
-                    'cancelled': 'danger'
-                };
-                return colors[status] || 'secondary';
-            }
-            
-            function generateStars(rating) {
-                let stars = '';
-                for (let i = 1; i <= 5; i++) {
-                    stars += `<i class="fas fa-star${i > rating ? '' : ''}"></i>`;
-                }
-                return stars;
-            }
-        });
-    </script>
+
+                                <!-- Appointments List -->
+                                <% if (typeof appointments !=='undefined' && appointments && appointments.length> 0) {
+                                    %>
+                                    <% appointments.forEach(appointment=> { %>
+                                        <div class="appointment-card">
+                                            <div class="appointment-grid">
+                                                <div class="appointment-service">
+                                                    <h6>
+                                                        <%= appointment.Service ? appointment.Service.name : 'Service'
+                                                            %>
+                                                    </h6>
+                                                    <p><i class="fas fa-user-tie me-1"></i>
+                                                        <%= appointment.Barber ? appointment.Barber.name : 'Barber' %>
+                                                    </p>
+                                                </div>
+
+                                                <div class="appointment-datetime">
+                                                    <p class="date">
+                                                        <i class="fas fa-calendar me-1"></i>
+                                                        <%= new
+                                                            Date(appointment.appointment_date).toLocaleDateString('en-US',
+                                                            { month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                                    </p>
+                                                    <p class="time">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        <%= new
+                                                            Date(appointment.appointment_date).toLocaleTimeString('en-US',
+                                                            { hour: 'numeric' , minute: '2-digit' , hour12: true }) %>
+                                                    </p>
+                                                </div>
+
+                                                <div class="appointment-price">
+                                                    $<%= appointment.total_price || (appointment.Service ?
+                                                        appointment.Service.price : '0' ) %>
+                                                        <span class="duration">
+                                                            <%= appointment.Service ? appointment.Service.duration : '0'
+                                                                %> mins
+                                                        </span>
+                                                </div>
+
+                                                <div>
+                                                    <span class="status-badge badge-<%= appointment.status %>">
+                                                        <i class="fas fa-circle"></i>
+                                                        <%= appointment.status %>
+                                                    </span>
+                                                </div>
+
+                                                <div class="appointment-actions">
+                                                    <% if (['pending', 'confirmed' ].includes(appointment.status)) { %>
+                                                        <form
+                                                            action="/customer/appointments/<%= appointment.id %>/cancel"
+                                                            method="POST" style="display: inline;"
+                                                            onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+                                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                                <i class="fas fa-times"></i>Cancel
+                                                            </button>
+                                                        </form>
+                                                        <% } %>
+
+                                                            <% if (appointment.status==='completed' &&
+                                                                !appointment.Rating) { %>
+                                                                <a href="/customer/ratings/create/<%= appointment.id %>"
+                                                                    class="btn btn-sm btn-outline">
+                                                                    <i class="fas fa-star"></i>Review
+                                                                </a>
+                                                                <% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% }); %>
+
+                                            <!-- Pagination -->
+                                            <% if (typeof totalPages !=='undefined' && totalPages> 1) { %>
+                                                <nav>
+                                                    <ul class="pagination">
+                                                        <% if (typeof currentPage !=='undefined' && currentPage> 1) { %>
+                                                            <li class="page-item">
+                                                                <a class="page-link"
+                                                                    href="?page=<%= currentPage - 1 %><%= typeof currentStatus !== 'undefined' && currentStatus !== 'all' ? '&status=' + currentStatus : '' %><%= typeof dateFrom !== 'undefined' && dateFrom ? '&date_from=' + dateFrom : '' %><%= typeof dateTo !== 'undefined' && dateTo ? '&date_to=' + dateTo : '' %>">
+                                                                    <i class="fas fa-chevron-left me-1"></i>Previous
+                                                                </a>
+                                                            </li>
+                                                            <% } %>
+
+                                                                <% for (let i=1; i <=totalPages; i++) { %>
+                                                                    <li
+                                                                        class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                                                        <a class="page-link"
+                                                                            href="?page=<%= i %><%= typeof currentStatus !== 'undefined' && currentStatus !== 'all' ? '&status=' + currentStatus : '' %><%= typeof dateFrom !== 'undefined' && dateFrom ? '&date_from=' + dateFrom : '' %><%= typeof dateTo !== 'undefined' && dateTo ? '&date_to=' + dateTo : '' %>">
+                                                                            <%= i %>
+                                                                        </a>
+                                                                    </li>
+                                                                    <% } %>
+
+                                                                        <% if (typeof currentPage !=='undefined' &&
+                                                                            typeof totalPages !=='undefined' &&
+                                                                            currentPage < totalPages) { %>
+                                                                            <li class="page-item">
+                                                                                <a class="page-link"
+                                                                                    href="?page=<%= currentPage + 1 %><%= typeof currentStatus !== 'undefined' && currentStatus !== 'all' ? '&status=' + currentStatus : '' %><%= typeof dateFrom !== 'undefined' && dateFrom ? '&date_from=' + dateFrom : '' %><%= typeof dateTo !== 'undefined' && dateTo ? '&date_to=' + dateTo : '' %>">
+                                                                                    Next<i
+                                                                                        class="fas fa-chevron-right ms-1"></i>
+                                                                                </a>
+                                                                            </li>
+                                                                            <% } %>
+                                                    </ul>
+                                                </nav>
+                                                <% } %>
+                                                    <% } else { %>
+                                                        <!-- Empty State -->
+                                                        <div class="empty-state">
+                                                            <i class="fas fa-calendar-times"></i>
+                                                            <h4>No Appointments Found</h4>
+                                                            <p>You haven't booked any appointments yet, or no
+                                                                appointments match your current filters.</p>
+                                                            <a href="/customer/book-appointment"
+                                                                class="btn btn-primary">
+                                                                <i class="fas fa-calendar-plus"></i>Book Your First
+                                                                Appointment
+                                                            </a>
+                                                        </div>
+                                                        <% } %>
+            </div>
+    </div>
 </body>
+
 </html>

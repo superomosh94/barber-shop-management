@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const userController = {
     // Show admin login form
     showAdminLogin: (req, res) => {
-        res.render('admin/admin-login', {
+        res.render('admin/login', {
             title: 'Admin Login - Classic Cuts',
             layout: 'admin-layout'
         });

@@ -5,149 +5,156 @@
                 <i class="fas fa-user"></i>
             </div>
             <div class="user-details">
-                <h4><%= user.name %></h4>
+                <h4>
+                    <%= user.name %>
+                </h4>
                 <span class="user-role">Customer</span>
             </div>
         </div>
     </div>
-    
+
     <nav class="sidebar-nav">
         <a href="/customer/dashboard" class="nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>">
             <i class="fas fa-tachometer-alt"></i>
             <span>Dashboard</span>
         </a>
-        
-        <a href="/customer/booking" class="nav-item">
+
+        <a href="/customer/book-appointment" class="nav-item <%= currentPage === 'booking' ? 'active' : '' %>">
             <i class="fas fa-calendar-plus"></i>
             <span>Book Appointment</span>
         </a>
-        
+
         <a href="/customer/appointment-history" class="nav-item <%= currentPage === 'history' ? 'active' : '' %>">
             <i class="fas fa-history"></i>
             <span>Appointment History</span>
-            <% if (pendingAppointmentsCount > 0) { %>
-                <span class="badge bg-warning"><%= pendingAppointmentsCount %></span>
-            <% } %>
+            <% if (typeof pendingAppointmentsCount !=='undefined' && pendingAppointmentsCount> 0) { %>
+                <span class="badge bg-warning">
+                    <%= pendingAppointmentsCount %>
+                </span>
+                <% } %>
         </a>
-        
-        <a href="/customer/services" class="nav-item">
+
+        <a href="/services" class="nav-item">
             <i class="fas fa-scissors"></i>
             <span>Services</span>
         </a>
-        
-        <a href="/customer/barbers" class="nav-item">
+
+        <a href="/barbers" class="nav-item">
             <i class="fas fa-user-cut"></i>
             <span>Our Barbers</span>
         </a>
-        
+
         <a href="/customer/profile" class="nav-item <%= currentPage === 'profile' ? 'active' : '' %>">
             <i class="fas fa-user"></i>
             <span>My Profile</span>
         </a>
-        
+
         <a href="/customer/change-password" class="nav-item <%= currentPage === 'password' ? 'active' : '' %>">
             <i class="fas fa-key"></i>
             <span>Change Password</span>
         </a>
     </nav>
-    
+
     <div class="sidebar-footer">
-        <a href="/auth/logout" class="nav-item logout">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
-        </a>
+        <form action="/auth/logout" method="POST" style="margin: 0;">
+            <button type="submit" class="nav-item logout"
+                style="width: 100%; text-align: left; background: none; border: none; cursor: pointer;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </form>
     </div>
 </aside>
 
 <style>
-.dashboard-sidebar {
-    width: 280px;
-    background: #2c3e50;
-    color: white;
-    display: flex;
-    flex-direction: column;
-}
+    .dashboard-sidebar {
+        width: 280px;
+        background: #2c3e50;
+        color: white;
+        display: flex;
+        flex-direction: column;
+    }
 
-.sidebar-header {
-    padding: 2rem 1.5rem;
-    border-bottom: 1px solid #34495e;
-}
+    .sidebar-header {
+        padding: 2rem 1.5rem;
+        border-bottom: 1px solid #34495e;
+    }
 
-.user-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
 
-.user-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: #3498db;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-}
+    .user-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #3498db;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
 
-.user-details h4 {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.1rem;
-}
+    .user-details h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.1rem;
+    }
 
-.user-role {
-    font-size: 0.8rem;
-    color: #bdc3c7;
-}
+    .user-role {
+        font-size: 0.8rem;
+        color: #bdc3c7;
+    }
 
-.sidebar-nav {
-    flex: 1;
-    padding: 1rem 0;
-}
+    .sidebar-nav {
+        flex: 1;
+        padding: 1rem 0;
+    }
 
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.5rem;
-    color: #bdc3c7;
-    text-decoration: none;
-    transition: all 0.3s;
-    border-left: 3px solid transparent;
-}
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        color: #bdc3c7;
+        text-decoration: none;
+        transition: all 0.3s;
+        border-left: 3px solid transparent;
+    }
 
-.nav-item:hover {
-    background: #34495e;
-    color: white;
-    border-left-color: #3498db;
-}
+    .nav-item:hover {
+        background: #34495e;
+        color: white;
+        border-left-color: #3498db;
+    }
 
-.nav-item.active {
-    background: #34495e;
-    color: white;
-    border-left-color: #3498db;
-}
+    .nav-item.active {
+        background: #34495e;
+        color: white;
+        border-left-color: #3498db;
+    }
 
-.nav-item i {
-    width: 20px;
-    text-align: center;
-}
+    .nav-item i {
+        width: 20px;
+        text-align: center;
+    }
 
-.nav-item .badge {
-    margin-left: auto;
-}
+    .nav-item .badge {
+        margin-left: auto;
+    }
 
-.sidebar-footer {
-    border-top: 1px solid #34495e;
-    padding: 1rem 0;
-}
+    .sidebar-footer {
+        border-top: 1px solid #34495e;
+        padding: 1rem 0;
+    }
 
-.logout {
-    color: #e74c3c;
-}
+    .logout {
+        color: #e74c3c;
+    }
 
-.logout:hover {
-    background: #c0392b;
-    color: white;
-}
+    .logout:hover {
+        background: #c0392b;
+        color: white;
+    }
 </style>
