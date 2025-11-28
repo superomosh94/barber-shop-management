@@ -36,7 +36,7 @@ const authController = {
             });
 
             req.flash('success', 'Account created successfully! Please log in.');
-            res.redirect('/login');
+            res.redirect('/auth/login');
 
         } catch (error) {
             console.error('Registration error:', error);

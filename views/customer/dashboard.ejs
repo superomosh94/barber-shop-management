@@ -28,7 +28,7 @@
                     <div class="dashboard-card">
                         <div class="card-header">
                             <h2>Upcoming Appointments</h2>
-                            <a href="/customer/booking" class="btn btn-primary">Book New</a>
+                            <a href="/customer/book-appointment" class="btn btn-primary">Book New</a>
                         </div>
                         <div class="card-body">
                             <% if (upcomingAppointments.length > 0) { %>
@@ -58,7 +58,7 @@
                                 <div class="empty-state">
                                     <i class="fas fa-calendar-plus"></i>
                                     <p>No upcoming appointments</p>
-                                    <a href="/customer/booking" class="btn btn-primary">Book Your First Appointment</a>
+                                    <a href="/customer/book-appointment" class="btn btn-primary">Book Your First Appointment</a>
                                 </div>
                             <% } %>
                         </div>
@@ -88,7 +88,7 @@
                                             </div>
                                             <div class="appointment-actions">
                                                 <% if (appointment.status === 'completed' && !appointment.rating) { %>
-                                                    <a href="/customer/rate-service/<%= appointment.id %>" 
+                                                    <a href="/ratings/<%= appointment.id %>/rate" 
                                                        class="btn btn-sm btn-primary">Rate</a>
                                                 <% } %>
                                             </div>

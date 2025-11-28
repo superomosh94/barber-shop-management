@@ -10,6 +10,16 @@ const barberController = require('../controllers/admin/barberController');
 const serviceController = require('../controllers/admin/serviceController');
 const appointmentController = require('../controllers/admin/appointmentController');
 const ratingController = require('../controllers/admin/ratingController');
+
+// Admin login routes (public - no auth required)
+router.get('/login', redirectIfAdminAuthenticated, userController.showAdminLogin);
+router.post('/login', redirectIfAdminAuthenticated, userController.adminLogin);
+router.post('/logout', requireAdminAuth, userController.adminLogout);
+
+// Dashboard route - must be first
+router.get('/dashboard', requireAdminAuth, dashboardController.showAdminDashboard);
+router.get('/api/dashboard/stats', requireAdminAuth, dashboardController.getDashboardStats);
+
 // Admin management routes
 router.get('/admins', requireAdminAuth, requirePermission('admin_users', 'read'), userController.showAdmins);
 router.get('/api/admins', requireAdminAuth, requirePermission('admin_users', 'read'), async (req, res) => {

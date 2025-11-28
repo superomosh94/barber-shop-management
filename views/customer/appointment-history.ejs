@@ -573,7 +573,7 @@
 
                                                             <% if (appointment.status==='completed' &&
                                                                 !appointment.Rating) { %>
-                                                                <a href="/customer/ratings/create/<%= appointment.id %>"
+                                                                <a href="/ratings/<%= appointment.id %>/rate"
                                                                     class="btn btn-sm btn-outline">
                                                                     <i class="fas fa-star"></i>Review
                                                                 </a>
