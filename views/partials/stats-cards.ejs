@@ -1,0 +1,61 @@
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon total-appointments">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-info">
+            <h3><%= stats.totalAppointments %></h3>
+            <p>Total Appointments</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon completed">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+            <h3><%= stats.completedAppointments %></h3>
+            <p>Completed</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon pending">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-info">
+            <h3><%= stats.pendingAppointments %></h3>
+            <p>Pending</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon total-spending">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-info">
+            <h3>$<%= stats.totalSpending.toFixed(2) %></h3>
+            <p>Total Spending</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon pending-ratings">
+            <i class="fas fa-star"></i>
+        </div>
+        <div class="stat-info">
+            <h3><%= stats.pendingRatings %></h3>
+            <p>Pending Ratings</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon cancelled">
+            <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-info">
+            <h3><%= stats.cancelledAppointments %></h3>
+            <p>Cancelled</p>
+        </div>
+    </div>
+</div>

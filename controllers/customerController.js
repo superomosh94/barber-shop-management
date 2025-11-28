@@ -30,13 +30,13 @@ const customerController = {
                     }
                 },
                 include: [
-                    { 
-                        model: Service, 
+                    {
+                        model: Service,
                         as: 'service',
                         attributes: ['id', 'name', 'price', 'duration']
                     },
-                    { 
-                        model: Barber, 
+                    {
+                        model: Barber,
                         as: 'barber',
                         attributes: ['id', 'name'] // Removed specialization
                     }
@@ -54,13 +54,13 @@ const customerController = {
                     }
                 },
                 include: [
-                    { 
-                        model: Service, 
+                    {
+                        model: Service,
                         as: 'service',
                         attributes: ['id', 'name', 'price']
                     },
-                    { 
-                        model: Barber, 
+                    {
+                        model: Barber,
                         as: 'barber',
                         attributes: ['id', 'name'] // Removed specialization
                     }
@@ -70,45 +70,45 @@ const customerController = {
             });
 
             // Get comprehensive customer statistics
-            const totalAppointments = await Appointment.count({ 
-                where: { customer_id } 
+            const totalAppointments = await Appointment.count({
+                where: { customer_id }
             });
 
-            const completedAppointments = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'completed' 
-                } 
+            const completedAppointments = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'completed'
+                }
             });
 
-            const pendingAppointments = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'pending' 
-                } 
+            const pendingAppointments = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'pending'
+                }
             });
 
-            const cancelledAppointments = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'cancelled' 
-                } 
+            const cancelledAppointments = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'cancelled'
+                }
             });
 
             // Calculate total spending
             const totalSpending = await Appointment.sum('total_price', {
-                where: { 
-                    customer_id, 
-                    status: 'completed' 
+                where: {
+                    customer_id,
+                    status: 'completed'
                 }
             }) || 0;
 
             // Get pending appointments count for sidebar
-            const pendingAppointmentsCount = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'pending' 
-                } 
+            const pendingAppointmentsCount = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'pending'
+                }
             });
 
             // Get appointments pending ratings
@@ -219,7 +219,7 @@ const customerController = {
     showProfile: async (req, res) => {
         try {
             const customer_id = req.session.user.id;
-            
+
             const customer = await Customer.findByPk(customer_id, {
                 attributes: ['id', 'name', 'email', 'phone', 'created_at', 'updated_at']
             });
@@ -230,48 +230,48 @@ const customerController = {
             }
 
             // Get comprehensive profile statistics
-            const totalAppointments = await Appointment.count({ 
-                where: { customer_id } 
+            const totalAppointments = await Appointment.count({
+                where: { customer_id }
             });
 
-            const completedAppointments = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'completed' 
-                } 
+            const completedAppointments = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'completed'
+                }
             });
 
-            const pendingAppointments = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'pending' 
-                } 
+            const pendingAppointments = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'pending'
+                }
             });
 
-            const cancelledAppointments = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'cancelled' 
-                } 
+            const cancelledAppointments = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'cancelled'
+                }
             });
 
             const totalSpending = await Appointment.sum('total_price', {
-                where: { 
-                    customer_id, 
-                    status: 'completed' 
+                where: {
+                    customer_id,
+                    status: 'completed'
                 }
             }) || 0;
 
-            const totalRatings = await require('../models').Rating.count({ 
-                where: { customer_id } 
+            const totalRatings = await require('../models').Rating.count({
+                where: { customer_id }
             });
 
             // Get pending appointments count for sidebar
-            const pendingAppointmentsCount = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'pending' 
-                } 
+            const pendingAppointmentsCount = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'pending'
+                }
             });
 
             res.render('customer/profile', {
@@ -351,7 +351,7 @@ const customerController = {
 
         } catch (error) {
             console.error('Update profile error:', error);
-            
+
             if (error.name === 'SequelizeValidationError') {
                 const validationErrors = error.errors.map(err => err.message);
                 req.flash('error', validationErrors.join(', '));
@@ -360,7 +360,7 @@ const customerController = {
             } else {
                 req.flash('error', 'Failed to update profile. Please try again.');
             }
-            
+
             res.redirect('/customer/profile');
         }
     },
@@ -372,7 +372,7 @@ const customerController = {
             const page = parseInt(req.query.page) || 1;
             const limit = 10;
             const offset = (page - 1) * limit;
-            
+
             // Get filter parameters
             const status = req.query.status || 'all';
             const dateFrom = req.query.date_from;
@@ -380,7 +380,7 @@ const customerController = {
 
             // Build where clause for filtering
             const where = { customer_id };
-            
+
             if (status !== 'all') {
                 where.status = status;
             }
@@ -400,13 +400,13 @@ const customerController = {
             const { count, rows: appointments } = await Appointment.findAndCountAll({
                 where,
                 include: [
-                    { 
-                        model: Service, 
+                    {
+                        model: Service,
                         as: 'service',
                         attributes: ['id', 'name', 'price', 'duration']
                     },
-                    { 
-                        model: Barber, 
+                    {
+                        model: Barber,
                         as: 'barber',
                         attributes: ['id', 'name'] // Removed specialization
                     }
@@ -430,11 +430,11 @@ const customerController = {
             });
 
             // Get pending appointments count for sidebar
-            const pendingAppointmentsCount = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'pending' 
-                } 
+            const pendingAppointmentsCount = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'pending'
+                }
             });
 
             res.render('customer/appointment-history', {
@@ -471,18 +471,18 @@ const customerController = {
                     customer_id
                 },
                 include: [
-                    { 
-                        model: Service, 
+                    {
+                        model: Service,
                         as: 'service',
                         attributes: ['id', 'name', 'price', 'duration', 'description']
                     },
-                    { 
-                        model: Barber, 
+                    {
+                        model: Barber,
                         as: 'barber',
                         attributes: ['id', 'name', 'experience', 'bio'] // Removed specialization
                     },
-                    { 
-                        model: require('../models').Rating, 
+                    {
+                        model: require('../models').Rating,
                         as: 'rating',
                         attributes: ['id', 'rating', 'comment', 'created_at']
                     }
@@ -561,13 +561,13 @@ const customerController = {
     showChangePassword: async (req, res) => {
         try {
             const customer_id = req.session.user.id;
-            
+
             // Get pending appointments count for sidebar
-            const pendingAppointmentsCount = await Appointment.count({ 
-                where: { 
-                    customer_id, 
-                    status: 'pending' 
-                } 
+            const pendingAppointmentsCount = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'pending'
+                }
             });
 
             res.render('customer/change-password', {
@@ -626,7 +626,7 @@ const customerController = {
                 return res.redirect('/customer/change-password');
             }
 
-            await customer.update({ 
+            await customer.update({
                 password: new_password
             });
 
@@ -635,14 +635,14 @@ const customerController = {
 
         } catch (error) {
             console.error('Update password error:', error);
-            
+
             if (error.name === 'SequelizeValidationError') {
                 const validationErrors = error.errors.map(err => err.message);
                 req.flash('error', validationErrors.join(', '));
             } else {
                 req.flash('error', 'Failed to update password. Please try again.');
             }
-            
+
             res.redirect('/customer/change-password');
         }
     },
@@ -656,13 +656,208 @@ const customerController = {
             const appointments = await Appointment.findAll({
                 where: { customer_id },
                 include: [
-                    { 
-                        model: Service, 
+                    {
+                        model: Service,
                         as: 'service',
                         attributes: ['name', 'price']
                     },
-                    { 
-                        model: Barber, 
+                    {
+                        model: Barber,
+                        as: 'barber',
+                        attributes: ['name']
+                    }
+                ],
+                order: [['appointment_date', 'DESC']],
+                attributes: ['id', 'appointment_date', 'status', 'total_price', 'notes']
+            });
+
+            if (format === 'csv') {
+                // Generate CSV content
+                const csvContent = [
+                    ['Date', 'Service', 'Barber', 'Status', 'Price', 'Notes'],
+                    ...appointments.map(apt => [
+                        moment(apt.appointment_date).format('YYYY-MM-DD HH:mm'),
+                        apt.service?.name || 'N/A',
+                        apt.barber?.name || 'N/A',
+                        apt.status,
+                        `$${apt.total_price}`,
+                        apt.notes || 'N/A'
+                    ])
+                ].map(row => row.join(',')).join('\n');
+
+                res.setHeader('Content-Type', 'text/csv');
+                res.setHeader('Content-Disposition', 'attachment; filename=appointment-history.csv');
+                return res.send(csvContent);
+            }
+
+            // Default JSON response
+            res.json({
+                success: true,
+                data: appointments
+            });
+
+        } catch (error) {
+            console.error('Export appointment history error:', error);
+            res.status(500).json({
+                success: false,
+                error: 'Failed to fetch appointment details'
+            });
+        }
+    },
+
+    // Cancel appointment with validation
+    cancelAppointment: async (req, res) => {
+        try {
+            const customer_id = req.session.user.id;
+            const { id } = req.params;
+            const { cancellation_reason } = req.body;
+
+            const appointment = await Appointment.findOne({
+                where: {
+                    id,
+                    customer_id,
+                    status: ['pending', 'confirmed']
+                }
+            });
+
+            if (!appointment) {
+                req.flash('error', 'Appointment not found or cannot be cancelled');
+                return res.redirect('/customer/appointment-history');
+            }
+
+            // Check if appointment is within cancellation window (e.g., 2 hours before)
+            const appointmentTime = new Date(appointment.appointment_date);
+            const currentTime = new Date();
+            const timeDifference = appointmentTime.getTime() - currentTime.getTime();
+            const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+            if (hoursDifference < 2) {
+                req.flash('error', 'Appointments can only be cancelled at least 2 hours in advance');
+                return res.redirect('/customer/appointment-history');
+            }
+
+            await appointment.update({
+                status: 'cancelled',
+                cancellation_reason: cancellation_reason || 'No reason provided',
+                cancelled_at: new Date()
+            });
+
+            req.flash('success', 'Appointment cancelled successfully');
+            res.redirect('/customer/appointment-history');
+
+        } catch (error) {
+            console.error('Cancel appointment error:', error);
+            req.flash('error', 'Failed to cancel appointment');
+            res.redirect('/customer/appointment-history');
+        }
+    },
+
+    // Change password page
+    showChangePassword: async (req, res) => {
+        try {
+            const customer_id = req.session.user.id;
+
+            // Get pending appointments count for sidebar
+            const pendingAppointmentsCount = await Appointment.count({
+                where: {
+                    customer_id,
+                    status: 'pending'
+                }
+            });
+
+            res.render('customer/change-password', {
+                title: 'Change Password - Classic Cuts',
+                user: req.session.user,
+                pendingAppointmentsCount,
+                currentPage: 'password'
+            });
+        } catch (error) {
+            console.error('Change password page error:', error);
+            req.flash('error', 'Unable to load page');
+            res.redirect('/customer/dashboard');
+        }
+    },
+
+    // Update password with comprehensive validation
+    updatePassword: async (req, res) => {
+        try {
+            const customer_id = req.session.user.id;
+            const { current_password, new_password, confirm_password } = req.body;
+
+            const customer = await Customer.findByPk(customer_id);
+            if (!customer) {
+                req.flash('error', 'Customer account not found');
+                return res.redirect('/customer/change-password');
+            }
+
+            // Validate required fields
+            if (!current_password || !new_password || !confirm_password) {
+                req.flash('error', 'All password fields are required');
+                return res.redirect('/customer/change-password');
+            }
+
+            // Verify current password
+            const isCurrentPasswordValid = await customer.checkPassword(current_password);
+            if (!isCurrentPasswordValid) {
+                req.flash('error', 'Current password is incorrect');
+                return res.redirect('/customer/change-password');
+            }
+
+            // Check if new password is different from current password
+            if (current_password === new_password) {
+                req.flash('error', 'New password must be different from current password');
+                return res.redirect('/customer/change-password');
+            }
+
+            // Check if new password matches confirmation
+            if (new_password !== confirm_password) {
+                req.flash('error', 'New passwords do not match');
+                return res.redirect('/customer/change-password');
+            }
+
+            // Validate password strength
+            if (new_password.length < 8) {
+                req.flash('error', 'Password must be at least 8 characters long');
+                return res.redirect('/customer/change-password');
+            }
+
+            await customer.update({
+                password: new_password
+            });
+
+            req.flash('success', 'Password updated successfully');
+            res.redirect('/customer/profile');
+
+        } catch (error) {
+            console.error('Update password error:', error);
+
+            if (error.name === 'SequelizeValidationError') {
+                const validationErrors = error.errors.map(err => err.message);
+                req.flash('error', validationErrors.join(', '));
+            } else {
+                req.flash('error', 'Failed to update password. Please try again.');
+            }
+
+            res.redirect('/customer/change-password');
+        }
+    },
+
+    // Export appointment history
+    exportAppointmentHistory: async (req, res) => {
+        try {
+            const customer_id = req.session.user.id;
+            const format = req.query.format || 'json'; // json, csv
+
+            const appointments = await Appointment.findAll({
+                where: { customer_id },
+                include: [
+                    {
+                        model: Service,
+                        as: 'service',
+                        attributes: ['name', 'price']
+                    },
+                    {
+                        model: Barber,
                         as: 'barber',
                         attributes: ['name']
                     }
@@ -702,6 +897,38 @@ const customerController = {
                 success: false,
                 error: 'Failed to export appointment history'
             });
+        }
+    },
+
+    // Show booking page
+    showBookingPage: async (req, res) => {
+        try {
+            // Fetch available services and barbers
+            const [services, barbers] = await Promise.all([
+                Service.findAll({
+                    where: { is_active: true },
+                    attributes: ['id', 'name', 'price', 'duration', 'description', 'category'],
+                    order: [['name', 'ASC']]
+                }),
+                Barber.findAll({
+                    where: { is_active: true },
+                    attributes: ['id', 'name', 'specialty', 'experience', 'bio', 'image', 'email', 'phone'],
+                    order: [['name', 'ASC']]
+                })
+            ]);
+
+            res.render('customer/booking', {
+                title: 'Book Appointment - Classic Cuts',
+                services: services || [],
+                barbers: barbers || [],
+                user: req.session.user,
+                currentPage: 'booking'
+            });
+
+        } catch (error) {
+            console.error('Booking page error:', error);
+            req.flash('error', 'Unable to load booking page. Please try again.');
+            res.redirect('/customer/dashboard');
         }
     }
 };

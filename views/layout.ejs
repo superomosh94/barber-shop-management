@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="/" class="logo">
+                <i class="fas fa-cut text-gold"></i> Classic Cuts
+            </a>
+
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/services" class="nav-link">Services</a>
+                <a href="/barbers" class="nav-link">Barbers</a>
+                <% if (user) { %>
+                    <a href="/customer/dashboard" class="nav-link">Dashboard</a>
+                    <form action="/auth/logout" method="POST" style="display: inline;">
+                        <button type="submit" class="btn btn-outline"
+                            style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">Logout</button>
+                    </form>
+                    <% } else { %>
+                        <a href="/auth/login" class="nav-link">Login</a>
+                        <a href="/auth/register" class="btn btn-primary"
+                            style="padding: 0.5rem 1rem; font-size: 0.875rem;">Book Now</a>
+                        <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <% if (error || success) { %>
+        <div class="container" style="margin-top: var(--spacing-lg);">
+            <% if (error) { %>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= error %>
+                </div>
+                <% } %>
+                    <% if (success) { %>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            <%= success %>
+                        </div>
+                        <% } %>
+        </div>
+        <% } %>
+
+            <!-- Main Content -->
+            <%- body %>
+
+                <!-- Footer -->
+                <footer
+                    style="background-color: var(--bg-secondary); padding: var(--spacing-xl) 0; margin-top: var(--spacing-xl); border-top: 1px solid var(--border-color);">
+                    <div class="container">
+                        <div class="grid grid-4">
+                            <div>
+                                <div class="logo mb-2">Classic Cuts</div>
+                                <p>Premium grooming services for the modern gentleman.</p>
+                            </div>
+                            <div>
+                                <h4
+                                    style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold);">
+                                    Quick Links</h4>
+                                <ul style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <li><a href="/" class="text-secondary hover:text-white">Home</a></li>
+                                    <li><a href="/services" class="text-secondary hover:text-white">Services</a></li>
+                                    <li><a href="/barbers" class="text-secondary hover:text-white">Barbers</a></li>
+                                    <li><a href="/customer/book-appointment"
+                                            class="text-secondary hover:text-white">Book Appointment</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4
+                                    style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold);">
+                                    Contact</h4>
+                                <ul style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <li class="text-secondary"><i class="fas fa-phone mr-2"></i> (555) 123-4567</li>
+                                    <li class="text-secondary"><i class="fas fa-envelope mr-2"></i> info@classiccuts.com
+                                    </li>
+                                    <li class="text-secondary"><i class="fas fa-map-marker-alt mr-2"></i> 123 Barber St,
+                                        City</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4
+                                    style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold);">
+                                    Hours</h4>
+                                <ul style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <li class="text-secondary">Mon-Fri: 9am - 8pm</li>
+                                    <li class="text-secondary">Saturday: 10am - 6pm</li>
+                                    <li class="text-secondary">Sunday: Closed</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3 pt-3"
+                            style="border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.875rem;">
+                            &copy; <%= new Date().getFullYear() %> Classic Cuts Barber Shop. All rights reserved.
+                        </div>
+                    </div>
+                </footer>
+
+                <script>
+                    // Auto-dismiss alerts
+                    setTimeout(() => {
+                        const alerts = document.querySelectorAll('.alert');
+                        alerts.forEach(alert => {
+                            alert.style.opacity = '0';
+                            setTimeout(() => alert.remove(), 500);
+                        });
+                    }, 5000);
+                </script>
+</body>
+
+</html>

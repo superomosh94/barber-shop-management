@@ -1,757 +1,281 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <%- include('../partials/head') %>
-    <title><%= title %></title>
-    <style>
-        .barber-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .avatar-placeholder {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: white;
-        }
-        .status-badge {
-            font-size: 0.75rem;
-        }
-        .action-buttons .btn {
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-        .stats-card {
-            border-left: 4px solid;
-        }
-        .stats-card.total {
-            border-left-color: #0d6efd;
-        }
-        .stats-card.active {
-            border-left-color: #198754;
-        }
-        .stats-card.inactive {
-            border-left-color: #6c757d;
-        }
-        .specialization-tag {
-            font-size: 0.75rem;
-            margin-right: 5px;
-            margin-bottom: 5px;
-        }
-        .barber-card {
-            transition: transform 0.2s;
-            height: 100%;
-        }
-        .barber-card:hover {
-            transform: translateY(-5px);
-        }
-        .rating-stars {
-            color: #ffc107;
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <%- include('../partials/admin-sidebar') %>
-            
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <!-- Header -->
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">
-                        <i class="fas fa-user-tie"></i>
-                        Barber Management
-                    </h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#newBarberModal">
-                            <i class="fas fa-plus"></i>
-                            Add New Barber
-                        </button>
-                        <div class="btn-group me-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary active" id="gridViewBtn">
-                                <i class="fas fa-th"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" id="listViewBtn">
-                                <i class="fas fa-list"></i>
-                            </button>
-                        </div>
-                    </div>
+<!-- Stats Cards -->
+<div class="grid grid-4 gap-3 mb-4">
+    <div class="card p-3 border-l-4 border-primary">
+        <div class="flex justify-between items-center">
+            <div>
+                <div class="text-xs font-bold uppercase text-primary mb-1">Total Barbers</div>
+                <div class="text-2xl font-bold text-primary">
+                    <%= barbers.length %>
                 </div>
-
-                <!-- Stats Cards -->
-                <div class="row mb-4">
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card total mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-uppercase mb-1 text-primary">Total Barbers</div>
-                                        <div class="h5 mb-0 text-primary"><%= barbers.length %></div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-user-tie fa-2x text-primary"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card active mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-uppercase mb-1 text-success">Active</div>
-                                        <div class="h5 mb-0 text-success">
-                                            <%= barbers.filter(b => b.is_active).length %>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-check-circle fa-2x text-success"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card inactive mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-uppercase mb-1 text-secondary">Inactive</div>
-                                        <div class="h5 mb-0 text-secondary">
-                                            <%= barbers.filter(b => !b.is_active).length %>
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-times-circle fa-2x text-secondary"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card bg-warning text-white mb-4">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Avg. Rating</div>
-                                        <div class="h5 mb-0">
-                                            <% 
-                                                const ratings = barbers.map(b => b.rating || 0).filter(r => r > 0);
-                                                const avgRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : '0.0';
-                                            %>
-                                            <%= avgRating %>/5
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="fas fa-star fa-2x"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Filters -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5 class="card-title">Filters</h5>
-                                <div class="btn-group" role="group">
-                                    <input type="radio" class="btn-check" name="statusFilter" id="allBarbers" autocomplete="off" checked>
-                                    <label class="btn btn-outline-primary" for="allBarbers">All</label>
-
-                                    <input type="radio" class="btn-check" name="statusFilter" id="activeBarbers" autocomplete="off">
-                                    <label class="btn btn-outline-success" for="activeBarbers">Active</label>
-
-                                    <input type="radio" class="btn-check" name="statusFilter" id="inactiveBarbers" autocomplete="off">
-                                    <label class="btn btn-outline-secondary" for="inactiveBarbers">Inactive</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <label for="searchBarber" class="form-label">Search Barbers</label>
-                                        <input type="text" class="form-control" id="searchBarber" placeholder="Search by name...">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="sortBarbers" class="form-label">Sort By</label>
-                                        <select class="form-select" id="sortBarbers">
-                                            <option value="name">Name A-Z</option>
-                                            <option value="name_desc">Name Z-A</option>
-                                            <option value="rating">Rating High-Low</option>
-                                            <option value="rating_low">Rating Low-High</option>
-                                            <option value="active">Active First</option>
-                                            <option value="inactive">Inactive First</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Grid View -->
-                <div id="gridView">
-                    <div class="row" id="barbersGrid">
-                        <% if (barbers.length === 0) { %>
-                            <div class="col-12">
-                                <div class="text-center py-5">
-                                    <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
-                                    <h4>No Barbers Found</h4>
-                                    <p class="text-muted">There are no barbers in the system yet.</p>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newBarberModal">
-                                        <i class="fas fa-plus"></i>
-                                        Add First Barber
-                                    </button>
-                                </div>
-                            </div>
-                        <% } else { %>
-                            <% barbers.forEach(barber => { %>
-                                <div class="col-xl-4 col-lg-6 col-md-6 mb-4 barber-item" 
-                                     data-status="<%= barber.is_active ? 'active' : 'inactive' %>"
-                                     data-name="<%= barber.name.toLowerCase() %>"
-                                     data-rating="<%= barber.rating || 0 %>">
-                                    <div class="card barber-card h-100">
-                                        <div class="card-body">
-                                            <div class="text-center mb-3">
-                                                <% if (barber.avatar) { %>
-                                                    <img src="<%= barber.avatar %>" alt="<%= barber.name %>" class="barber-avatar mb-2">
-                                                <% } else { %>
-                                                    <div class="avatar-placeholder bg-primary mx-auto mb-2">
-                                                        <%= barber.name.charAt(0).toUpperCase() %>
-                                                    </div>
-                                                <% } %>
-                                                <h5 class="card-title mb-1"><%= barber.name %></h5>
-                                                <div class="mb-2">
-                                                    <span class="badge <%= barber.is_active ? 'bg-success' : 'bg-secondary' %> status-badge">
-                                                        <%= barber.is_active ? 'Active' : 'Inactive' %>
-                                                    </span>
-                                                </div>
-                                                <% if (barber.rating) { %>
-                                                    <div class="rating-stars mb-2">
-                                                        <% for (let i = 1; i <= 5; i++) { %>
-                                                            <i class="fas fa-star<%= i > barber.rating ? '-half-alt' : '' %>"></i>
-                                                        <% } %>
-                                                        <small class="text-muted">(<%= barber.rating %>)</small>
-                                                    </div>
-                                                <% } %>
-                                            </div>
-                                            
-                                            <div class="barber-info">
-                                                <% if (barber.email) { %>
-                                                    <div class="mb-1">
-                                                        <i class="fas fa-envelope text-muted me-2"></i>
-                                                        <small><%= barber.email %></small>
-                                                    </div>
-                                                <% } %>
-                                                <% if (barber.phone) { %>
-                                                    <div class="mb-1">
-                                                        <i class="fas fa-phone text-muted me-2"></i>
-                                                        <small><%= barber.phone %></small>
-                                                    </div>
-                                                <% } %>
-                                                <% if (barber.specialization) { %>
-                                                    <div class="mb-2">
-                                                        <i class="fas fa-cut text-muted me-2"></i>
-                                                        <small><%= barber.specialization %></small>
-                                                    </div>
-                                                <% } %>
-                                                <% if (barber.experience) { %>
-                                                    <div class="mb-2">
-                                                        <i class="fas fa-briefcase text-muted me-2"></i>
-                                                        <small><%= barber.experience %> years experience</small>
-                                                    </div>
-                                                <% } %>
-                                            </div>
-
-                                            <div class="mt-3 action-buttons text-center">
-                                                <% if (barber.is_active) { %>
-                                                    <button class="btn btn-sm btn-warning" onclick="toggleBarberStatus(<%= barber.id %>, false)" title="Deactivate">
-                                                        <i class="fas fa-pause"></i>
-                                                    </button>
-                                                <% } else { %>
-                                                    <button class="btn btn-sm btn-success" onclick="toggleBarberStatus(<%= barber.id %>, true)" title="Activate">
-                                                        <i class="fas fa-play"></i>
-                                                    </button>
-                                                <% } %>
-                                                <button class="btn btn-sm btn-primary" onclick="editBarber(<%= barber.id %>)" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-info" onclick="viewBarber(<%= barber.id %>)" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" onclick="deleteBarber(<%= barber.id %>)" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div class="card-footer bg-transparent">
-                                            <small class="text-muted">
-                                                Added <%= moment(barber.created_at).fromNow() %>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            <% }); %>
-                        <% } %>
-                    </div>
-                </div>
-
-                <!-- List View (Hidden by default) -->
-                <div id="listView" style="display: none;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-list"></i>
-                                Barbers List
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <% if (barbers.length === 0) { %>
-                                <div class="text-center py-5">
-                                    <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
-                                    <h4>No Barbers Found</h4>
-                                    <p class="text-muted">There are no barbers in the system yet.</p>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newBarberModal">
-                                        <i class="fas fa-plus"></i>
-                                        Add First Barber
-                                    </button>
-                                </div>
-                            <% } else { %>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Barber</th>
-                                                <th>Contact</th>
-                                                <th>Specialization</th>
-                                                <th>Experience</th>
-                                                <th>Rating</th>
-                                                <th>Status</th>
-                                                <th>Joined</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="barbersList">
-                                            <% barbers.forEach(barber => { %>
-                                                <tr class="barber-item" 
-                                                    data-status="<%= barber.is_active ? 'active' : 'inactive' %>"
-                                                    data-name="<%= barber.name.toLowerCase() %>"
-                                                    data-rating="<%= barber.rating || 0 %>">
-                                                    <td>
-                                                        <div class="d-flex align-items-center">
-                                                            <% if (barber.avatar) { %>
-                                                                <img src="<%= barber.avatar %>" alt="<%= barber.name %>" class="barber-avatar me-3">
-                                                            <% } else { %>
-                                                                <div class="avatar-placeholder bg-primary me-3">
-                                                                    <%= barber.name.charAt(0).toUpperCase() %>
-                                                                </div>
-                                                            <% } %>
-                                                            <div>
-                                                                <strong><%= barber.name %></strong>
-                                                                <% if (barber.email) { %>
-                                                                    <br><small class="text-muted"><%= barber.email %></small>
-                                                                <% } %>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <% if (barber.phone) { %>
-                                                            <i class="fas fa-phone text-muted me-1"></i>
-                                                            <%= barber.phone %>
-                                                        <% } else { %>
-                                                            <span class="text-muted">No phone</span>
-                                                        <% } %>
-                                                    </td>
-                                                    <td>
-                                                        <% if (barber.specialization) { %>
-                                                            <span class="badge bg-light text-dark specialization-tag">
-                                                                <%= barber.specialization %>
-                                                            </span>
-                                                        <% } else { %>
-                                                            <span class="text-muted">-</span>
-                                                        <% } %>
-                                                    </td>
-                                                    <td>
-                                                        <% if (barber.experience) { %>
-                                                            <%= barber.experience %> years
-                                                        <% } else { %>
-                                                            <span class="text-muted">-</span>
-                                                        <% } %>
-                                                    </td>
-                                                    <td>
-                                                        <% if (barber.rating) { %>
-                                                            <div class="rating-stars">
-                                                                <% for (let i = 1; i <= 5; i++) { %>
-                                                                    <i class="fas fa-star<%= i > barber.rating ? '-half-alt' : '' %>"></i>
-                                                                <% } %>
-                                                                <br>
-                                                                <small class="text-muted">(<%= barber.rating %>)</small>
-                                                            </div>
-                                                        <% } else { %>
-                                                            <span class="text-muted">No ratings</span>
-                                                        <% } %>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge <%= barber.is_active ? 'bg-success' : 'bg-secondary' %> status-badge">
-                                                            <%= barber.is_active ? 'Active' : 'Inactive' %>
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <small class="text-muted">
-                                                            <%= moment(barber.created_at).format('MMM DD, YYYY') %>
-                                                        </small>
-                                                    </td>
-                                                    <td>
-                                                        <div class="action-buttons">
-                                                            <% if (barber.is_active) { %>
-                                                                <button class="btn btn-sm btn-warning" onclick="toggleBarberStatus(<%= barber.id %>, false)" title="Deactivate">
-                                                                    <i class="fas fa-pause"></i>
-                                                                </button>
-                                                            <% } else { %>
-                                                                <button class="btn btn-sm btn-success" onclick="toggleBarberStatus(<%= barber.id %>, true)" title="Activate">
-                                                                    <i class="fas fa-play"></i>
-                                                                </button>
-                                                            <% } %>
-                                                            <button class="btn btn-sm btn-primary" onclick="editBarber(<%= barber.id %>)" title="Edit">
-                                                                <i class="fas fa-edit"></i>
-                                                            </button>
-                                                            <button class="btn btn-sm btn-info" onclick="viewBarber(<%= barber.id %>)" title="View Details">
-                                                                <i class="fas fa-eye"></i>
-                                                            </button>
-                                                            <button class="btn btn-sm btn-danger" onclick="deleteBarber(<%= barber.id %>)" title="Delete">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            <% }); %>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            <% } %>
-                        </div>
-                    </div>
-                </div>
-            </main>
+            </div>
+            <i class="fas fa-user-tie fa-2x text-primary opacity-50"></i>
         </div>
     </div>
+    <div class="card p-3 border-l-4 border-success">
+        <div class="flex justify-between items-center">
+            <div>
+                <div class="text-xs font-bold uppercase text-success mb-1">Active</div>
+                <div class="text-2xl font-bold text-success">
+                    <%= barbers.filter(b=> b.is_active).length %>
+                </div>
+            </div>
+            <i class="fas fa-check-circle fa-2x text-success opacity-50"></i>
+        </div>
+    </div>
+    <div class="card p-3 border-l-4 border-secondary">
+        <div class="flex justify-between items-center">
+            <div>
+                <div class="text-xs font-bold uppercase text-secondary mb-1">Inactive</div>
+                <div class="text-2xl font-bold text-secondary">
+                    <%= barbers.filter(b=> !b.is_active).length %>
+                </div>
+            </div>
+            <i class="fas fa-times-circle fa-2x text-secondary opacity-50"></i>
+        </div>
+    </div>
+    <div class="card p-3 border-l-4 border-warning">
+        <div class="flex justify-between items-center">
+            <div>
+                <div class="text-xs font-bold uppercase text-warning mb-1">Avg. Rating</div>
+                <div class="text-2xl font-bold text-warning">
+                    <% const ratings=barbers.map(b=> b.rating || 0).filter(r => r > 0);
+                        const avgRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) /
+                        ratings.length).toFixed(1) : '0.0';
+                        %>
+                        <%= avgRating %>/5
+                </div>
+            </div>
+            <i class="fas fa-star fa-2x text-warning opacity-50"></i>
+        </div>
+    </div>
+</div>
 
-    <!-- New Barber Modal -->
-    <div class="modal fade" id="newBarberModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Barber</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Filters & Actions -->
+<div class="card mb-4">
+    <div class="card-header flex justify-between items-center">
+        <h3 class="card-title">Filters</h3>
+        <button class="btn btn-primary" onclick="openModal('newBarberModal')">
+            <i class="fas fa-plus mr-2"></i> Add New Barber
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="flex flex-wrap gap-3">
+            <div class="flex-1">
+                <label class="form-label">Status</label>
+                <div class="flex gap-2">
+                    <button class="btn btn-sm btn-primary" onclick="filterStatus('all')">All</button>
+                    <button class="btn btn-sm btn-outline text-success" onclick="filterStatus('active')">Active</button>
+                    <button class="btn btn-sm btn-outline text-secondary"
+                        onclick="filterStatus('inactive')">Inactive</button>
                 </div>
-                <div class="modal-body">
-                    <form id="newBarberForm">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Full Name *</label>
-                                    <input type="text" class="form-control" name="name" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Email Address *</label>
-                                    <input type="email" class="form-control" name="email" required>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" name="phone">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Specialization</label>
-                                    <input type="text" class="form-control" name="specialization" placeholder="e.g., Haircut, Shaving, Styling">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Experience (Years)</label>
-                                    <input type="number" class="form-control" name="experience" min="0" max="50">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Rating (1-5)</label>
-                                    <input type="number" class="form-control" name="rating" min="1" max="5" step="0.1" placeholder="4.5">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Avatar URL</label>
-                                    <input type="url" class="form-control" name="avatar" placeholder="https://example.com/avatar.jpg">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Status</label>
-                                    <select class="form-select" name="is_active">
-                                        <option value="true">Active</option>
-                                        <option value="false">Inactive</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Bio/Description</label>
-                            <textarea class="form-control" name="bio" rows="3" placeholder="Tell us about this barber's skills and specialties..."></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="createBarber()">
-                        <i class="fas fa-plus"></i> Add Barber
-                    </button>
+            </div>
+            <div class="flex-1">
+                <label class="form-label">Search</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="searchBarber" placeholder="Search by name...">
+                    <button class="btn btn-primary"><i class="fas fa-search"></i></button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // View Toggle
-        document.getElementById('gridViewBtn').addEventListener('click', function() {
-            document.getElementById('gridView').style.display = 'block';
-            document.getElementById('listView').style.display = 'none';
-            this.classList.add('active');
-            document.getElementById('listViewBtn').classList.remove('active');
-        });
+<!-- Barbers Grid -->
+<div class="grid grid-3 gap-3" id="barbersGrid">
+    <% if (barbers.length===0) { %>
+        <div class="col-span-3 text-center py-5">
+            <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
+            <h4>No Barbers Found</h4>
+            <p class="text-muted">There are no barbers in the system yet.</p>
+        </div>
+        <% } else { %>
+            <% barbers.forEach(barber=> { %>
+                <div class="card barber-item hover-lift" data-status="<%= barber.is_active ? 'active' : 'inactive' %>"
+                    data-name="<%= barber.name.toLowerCase() %>">
+                    <div class="card-body text-center">
+                        <% if (barber.avatar) { %>
+                            <img src="<%= barber.avatar %>" alt="<%= barber.name %>"
+                                class="avatar-lg rounded-full mx-auto mb-3">
+                            <% } else { %>
+                                <div
+                                    class="avatar-lg rounded-full bg-tertiary mx-auto mb-3 flex items-center justify-center text-xl font-bold">
+                                    <%= barber.name.charAt(0).toUpperCase() %>
+                                </div>
+                                <% } %>
 
-        document.getElementById('listViewBtn').addEventListener('click', function() {
-            document.getElementById('gridView').style.display = 'none';
-            document.getElementById('listView').style.display = 'block';
-            this.classList.add('active');
-            document.getElementById('gridViewBtn').classList.remove('active');
-        });
+                                    <h4 class="mb-1">
+                                        <%= barber.name %>
+                                    </h4>
+                                    <div class="mb-2">
+                                        <span class="badge badge-<%= barber.is_active ? 'success' : 'secondary' %>">
+                                            <%= barber.is_active ? 'Active' : 'Inactive' %>
+                                        </span>
+                                    </div>
 
-        // Filter functionality
-        function filterBarbers() {
-            const statusFilter = document.querySelector('input[name="statusFilter"]:checked').id;
-            const searchTerm = document.getElementById('searchBarber').value.toLowerCase();
-            const sortBy = document.getElementById('sortBarbers').value;
+                                    <div class="flex justify-center items-center gap-1 mb-3 text-warning">
+                                        <% for (let i=1; i <=5; i++) { %>
+                                            <i
+                                                class="fas fa-star<%= i > (barber.rating || 0) ? '-half-alt' : '' %>"></i>
+                                            <% } %>
+                                                <span class="text-muted text-sm ml-1">(<%= barber.rating || 0 %>)</span>
+                                    </div>
 
-            const barberItems = document.querySelectorAll('.barber-item');
-            
-            barberItems.forEach(item => {
-                const status = item.getAttribute('data-status');
-                const name = item.getAttribute('data-name');
-                const rating = parseFloat(item.getAttribute('data-rating'));
-                
-                let shouldShow = true;
+                                    <div class="text-left text-sm text-muted mb-3">
+                                        <% if (barber.email) { %>
+                                            <div class="mb-1"><i class="fas fa-envelope mr-2"></i>
+                                                <%= barber.email %>
+                                            </div>
+                                            <% } %>
+                                                <% if (barber.phone) { %>
+                                                    <div class="mb-1"><i class="fas fa-phone mr-2"></i>
+                                                        <%= barber.phone %>
+                                                    </div>
+                                                    <% } %>
+                                                        <% if (barber.specialization) { %>
+                                                            <div class="mb-1"><i class="fas fa-cut mr-2"></i>
+                                                                <%= barber.specialization %>
+                                                            </div>
+                                                            <% } %>
+                                    </div>
 
-                // Status filter
-                if (statusFilter === 'activeBarbers' && status !== 'active') shouldShow = false;
-                if (statusFilter === 'inactiveBarbers' && status !== 'inactive') shouldShow = false;
-
-                // Search filter
-                if (searchTerm && !name.includes(searchTerm)) shouldShow = false;
-
-                item.style.display = shouldShow ? '' : 'none';
-            });
-
-            // Sort functionality
-            sortBarbers(sortBy);
-        }
-
-        function sortBarbers(sortBy) {
-            const container = document.getElementById('barbersGrid') || document.getElementById('barbersList');
-            const items = Array.from(container.querySelectorAll('.barber-item'));
-
-            items.sort((a, b) => {
-                const aName = a.getAttribute('data-name');
-                const bName = b.getAttribute('data-name');
-                const aRating = parseFloat(a.getAttribute('data-rating'));
-                const bRating = parseFloat(b.getAttribute('data-rating'));
-                const aStatus = a.getAttribute('data-status');
-                const bStatus = b.getAttribute('data-status');
-
-                switch (sortBy) {
-                    case 'name':
-                        return aName.localeCompare(bName);
-                    case 'name_desc':
-                        return bName.localeCompare(aName);
-                    case 'rating':
-                        return bRating - aRating;
-                    case 'rating_low':
-                        return aRating - bRating;
-                    case 'active':
-                        return aStatus === 'active' ? -1 : bStatus === 'active' ? 1 : 0;
-                    case 'inactive':
-                        return aStatus === 'inactive' ? -1 : bStatus === 'inactive' ? 1 : 0;
-                    default:
-                        return 0;
-                }
-            });
-
-            items.forEach(item => container.appendChild(item));
-        }
-
-        // Event listeners for filters
-        document.querySelectorAll('input[name="statusFilter"]').forEach(radio => {
-            radio.addEventListener('change', filterBarbers);
-        });
-
-        document.getElementById('searchBarber').addEventListener('input', filterBarbers);
-        document.getElementById('sortBarbers').addEventListener('change', function() {
-            filterBarbers();
-        });
-
-        // Barber management functions
-        function toggleBarberStatus(barberId, isActive) {
-            const action = isActive ? 'activate' : 'deactivate';
-            if (confirm(`Are you sure you want to ${action} this barber?`)) {
-                fetch(`/admin/barbers/${barberId}/status`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ is_active: isActive })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        showToast('error', data.error || 'Failed to update barber status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error updating barber status');
-                });
-            }
-        }
-
-        function createBarber() {
-            const form = document.getElementById('newBarberForm');
-            const formData = new FormData(form);
-            
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-
-            fetch('/admin/barbers', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(Object.fromEntries(formData))
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('success', data.message);
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('newBarberModal'));
-                    modal.hide();
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showToast('error', data.error || 'Failed to create barber');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('error', 'Error creating barber');
-            });
-        }
-
-        function editBarber(barberId) {
-            showToast('info', 'Edit functionality will be implemented in the next phase');
-            // window.location.href = `/admin/barbers/${barberId}/edit`;
-        }
-
-        function viewBarber(barberId) {
-            showToast('info', 'View details functionality will be implemented in the next phase');
-            // window.location.href = `/admin/barbers/${barberId}`;
-        }
-
-        function deleteBarber(barberId) {
-            if (confirm('Are you sure you want to delete this barber? This action cannot be undone.')) {
-                fetch(`/admin/barbers/${barberId}`, {
-                    method: 'DELETE'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('success', data.message);
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        showToast('error', data.error || 'Failed to delete barber');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('error', 'Error deleting barber');
-                });
-            }
-        }
-
-        // Toast notification function
-        function showToast(type, message) {
-            let toastContainer = document.getElementById('toastContainer');
-            if (!toastContainer) {
-                toastContainer = document.createElement('div');
-                toastContainer.id = 'toastContainer';
-                toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-                document.body.appendChild(toastContainer);
-            }
-
-            const toastId = 'toast-' + Date.now();
-            const toastHtml = `
-                <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert">
-                    <div class="d-flex">
-                        <div class="toast-body">${message}</div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                                    <div class="flex justify-center gap-2">
+                                        <button class="btn btn-sm btn-outline"
+                                            onclick="toggleBarberStatus(<%= barber.id %>, <%= !barber.is_active %>)"
+                                            title="<%= barber.is_active ? 'Deactivate' : 'Activate' %>">
+                                            <i class="fas fa-<%= barber.is_active ? 'pause' : 'play' %>"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-primary" onclick="editBarber(<%= barber.id %>)"
+                                            title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteBarber(<%= barber.id %>)"
+                                            title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                     </div>
                 </div>
-            `;
+                <% }); %>
+                    <% } %>
+</div>
 
-            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-            const toastElement = document.getElementById(toastId);
-            const toast = new bootstrap.Toast(toastElement);
-            toast.show();
+<!-- New Barber Modal -->
+<div id="newBarberModal" class="modal-overlay hidden"
+    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+    <div class="modal-content bg-primary p-4 rounded-lg shadow-lg"
+        style="width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto;">
+        <div class="flex justify-between items-center mb-4 border-b border-color pb-2">
+            <h3 class="text-xl font-bold">Add New Barber</h3>
+            <button onclick="closeModal('newBarberModal')" class="text-muted hover:text-white"><i
+                    class="fas fa-times"></i></button>
+        </div>
 
-            toastElement.addEventListener('hidden.bs.toast', () => {
-                toastElement.remove();
-            });
-        }
+        <form id="newBarberForm">
+            <div class="grid grid-2 gap-3 mb-3">
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address *</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+            </div>
 
-        // Initialize filters
-        document.addEventListener('DOMContentLoaded', function() {
-            filterBarbers();
+            <div class="grid grid-2 gap-3 mb-3">
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" name="phone">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Specialization</label>
+                    <input type="text" class="form-control" name="specialization" placeholder="e.g., Haircut, Shaving">
+                </div>
+            </div>
+
+            <div class="grid grid-2 gap-3 mb-3">
+                <div class="form-group">
+                    <label class="form-label">Experience (Years)</label>
+                    <input type="number" class="form-control" name="experience" min="0" max="50">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-control" name="is_active">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <label class="form-label">Bio</label>
+                <textarea class="form-control" name="bio" rows="3"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <button type="button" class="btn btn-outline" onclick="closeModal('newBarberModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="createBarber()">Add Barber</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    function filterStatus(status) {
+        const items = document.querySelectorAll('.barber-item');
+        items.forEach(item => {
+            if (status === 'all' || item.dataset.status === status) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
         });
-    </script>
+    }
 
-    <%- include('../partials/scripts') %>
-</body>
-</html>
+    document.getElementById('searchBarber').addEventListener('input', function (e) {
+        const term = e.target.value.toLowerCase();
+        const items = document.querySelectorAll('.barber-item');
+        items.forEach(item => {
+            if (item.dataset.name.includes(term)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    function toggleBarberStatus(id, isActive) {
+        if (!confirm('Are you sure?')) return;
+        // Mock API call
+        alert('Status update functionality to be implemented');
+    }
+
+    function createBarber() {
+        const form = document.getElementById('newBarberForm');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        // Mock API call
+        alert('Create barber functionality to be implemented');
+        closeModal('newBarberModal');
+    }
+
+    function deleteBarber(id) {
+        if (!confirm('Are you sure?')) return;
+        // Mock API call
+        alert('Delete functionality to be implemented');
+    }
+
+    function editBarber(id) {
+        alert('Edit functionality to be implemented');
+    }
+</script>

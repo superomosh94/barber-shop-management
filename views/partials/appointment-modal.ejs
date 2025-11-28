@@ -1,1 +1,48 @@
-<!-- Appointment Modal Partial -->
+<div class="modal fade" id="appointmentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Appointment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="appointment-details">
+                    <div class="detail-row">
+                        <label>Service:</label>
+                        <span id="modalServiceName">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <label>Barber:</label>
+                        <span id="modalBarberName">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <label>Date & Time:</label>
+                        <span id="modalAppointmentDate">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <label>Duration:</label>
+                        <span id="modalDuration">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <label>Status:</label>
+                        <span id="modalStatus" class="status-badge">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <label>Price:</label>
+                        <span id="modalPrice">-</span>
+                    </div>
+                    <div class="detail-row" style="display: none;">
+                        <label>Notes:</label>
+                        <span id="modalNotes">-</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" id="cancelAppointmentBtn" style="display: none;">
+                    Cancel Appointment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,33 +1,62 @@
-<%- include('../partials/header', { title: 'Login - Classic Cuts' }) %>
-
-<main class="main-content">
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1 class="auth-title">Welcome Back</h1>
-                <p class="auth-subtitle">Sign in to your account</p>
-            </div>
-
-            <form action="/login" method="POST" class="auth-form">
-                <div class="form-group">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" id="email" name="email" class="form-control" 
-                           value="<%= formData ? formData.email : '' %>" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-full">Sign In</button>
-            </form>
-
-            <div class="auth-footer">
-                <p>Don't have an account? <a href="/register" class="auth-link">Sign up here</a></p>
-            </div>
+<div class="container"
+    style="min-height: calc(100vh - 200px); display: flex; align-items: center; justify-content: center; padding: 4rem 0;">
+    <div class="card" style="width: 100%; max-width: 450px; padding: 2.5rem;">
+        <div class="text-center mb-4">
+            <h1 class="mb-1" style="font-size: 2rem;">Welcome Back</h1>
+            <p class="text-muted">Sign in to your account</p>
         </div>
-    </div>
-</main>
 
-<%- include('../partials/footer') %>
+        <form action="/auth/login" method="POST">
+            <div class="form-group mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                    <input type="email" id="email" name="email" class="form-control"
+                        value="<%= typeof formData !== 'undefined' ? formData.email : '' %>" required
+                        placeholder="name@example.com">
+                </div>
+            </div>
+
+            <div class="form-group mb-4">
+                <div class="flex justify-between items-center mb-1">
+                    <label for="password" class="form-label mb-0">Password</label>
+                    <a href="/forgot-password" class="text-sm text-gold hover:underline">Forgot password?</a>
+                </div>
+                <div class="input-group" style="position: relative;">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input type="password" id="password" name="password" class="form-control" required
+                        placeholder="••••••••">
+                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                        <i class="fas fa-eye" id="password-icon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block mb-3">
+                Sign In <i class="fas fa-sign-in-alt ml-2"></i>
+            </button>
+
+            <div class="text-center text-sm">
+                <span class="text-muted">Don't have an account?</span>
+                <a href="/auth/register" class="text-gold font-medium hover:underline ml-1">Sign up here</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(inputId + '-icon');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>

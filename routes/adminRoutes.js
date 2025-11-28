@@ -1,42 +1,106 @@
 const express = require('express');
 const router = express.Router();
-const adminController = require('../controllers/adminController');
 const { requireAdminAuth, redirectIfAdminAuthenticated, requireRole, requirePermission } = require('../middleware/authMiddleware');
 
+// Import Controllers
+const dashboardController = require('../controllers/admin/dashboardController');
+const userController = require('../controllers/admin/userController');
+const customerController = require('../controllers/admin/customerController');
+const barberController = require('../controllers/admin/barberController');
+const serviceController = require('../controllers/admin/serviceController');
+const appointmentController = require('../controllers/admin/appointmentController');
+const ratingController = require('../controllers/admin/ratingController');
+
 // Admin authentication routes
-router.get('/login', redirectIfAdminAuthenticated, adminController.showAdminLogin);
-router.post('/login', adminController.adminLogin);
-router.post('/logout', adminController.adminLogout);
+router.get('/login', redirectIfAdminAuthenticated, userController.showAdminLogin);
+router.post('/login', userController.adminLogin);
+router.post('/logout', userController.adminLogout);
 
 // Admin dashboard routes
-router.get('/dashboard', requireAdminAuth, adminController.showAdminDashboard);
-router.get('/api/dashboard-stats', requireAdminAuth, adminController.getDashboardStats);
+router.get('/dashboard', requireAdminAuth, dashboardController.showAdminDashboard);
+router.get('/api/dashboard-stats', requireAdminAuth, dashboardController.getDashboardStats);
 
 // Admin management routes
-router.get('/admins', requireAdminAuth, requirePermission('admin_users', 'read'), adminController.showAdmins);
+router.get('/admins', requireAdminAuth, requirePermission('admin_users', 'read'), userController.showAdmins);
+router.get('/api/admins', requireAdminAuth, requirePermission('admin_users', 'read'), async (req, res) => {
+    // Re-implementing simple get all for API if needed, or use controller method if suitable
+    // For now, let's assume we might need a specific API method in userController or reuse logic
+    // But userController.showAdmins renders a view.
+    // Let's add API methods to userController or handle here if simple.
+    // The original adminRoutes had inline logic for some APIs. 
+    // I should have moved them to controllers. I did add createAdmin, updateAdminStatus, deleteAdmin to userController.
+    // Let's use those.
+    try {
+        const { AdminUser } = require('../models');
+        const admins = await AdminUser.findAll({
+            attributes: { exclude: ['password'] },
+            order: [['created_at', 'DESC']]
+        });
+        res.json({ success: true, data: admins });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to fetch admins' });
+    }
+});
+router.post('/api/admins', requireAdminAuth, requirePermission('admin_users', 'write'), userController.createAdmin);
+router.put('/api/admins/:id', requireAdminAuth, requirePermission('admin_users', 'write'), async (req, res) => {
+    // This was inline in original, I should have added updateAdmin to userController.
+    // I added updateAdminStatus but not full update.
+    // Let's keep it inline for now or add to controller.
+    // Ideally, I should have added it.
+    // For now, I will use the inline logic to avoid breaking if I missed it.
+    try {
+        const { AdminUser } = require('../models');
+        const { id } = req.params;
+        const { first_name, last_name, email, role, permissions, is_active } = req.body;
+        const admin = await AdminUser.findByPk(id);
+        if (!admin) return res.status(404).json({ success: false, error: 'Admin not found' });
+        await admin.update({ first_name, last_name, email, role, permissions: permissions || admin.permissions, is_active: is_active !== undefined ? is_active : admin.is_active });
+        res.json({ success: true, message: 'Admin updated successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: 'Failed to update admin' });
+    }
+});
+router.delete('/api/admins/:id', requireAdminAuth, requirePermission('admin_users', 'delete'), userController.deleteAdmin);
+router.post('/admins', userController.createAdmin); // Legacy route support?
+router.put('/admins/:id/status', userController.updateAdminStatus);
+router.delete('/admins/:id', userController.deleteAdmin);
+
 
 // Customer management routes
-router.get('/customers', requireAdminAuth, requirePermission('customers', 'read'), adminController.showCustomers);
+router.get('/customers', requireAdminAuth, requirePermission('customers', 'read'), customerController.showCustomers);
+router.get('/api/customers', requireAdminAuth, requirePermission('customers', 'read'), customerController.getCustomersApi);
 
 // Barber management routes
-router.get('/barbers', requireAdminAuth, requirePermission('barbers', 'read'), adminController.showBarbers);
+router.get('/barbers', requireAdminAuth, requirePermission('barbers', 'read'), barberController.showBarbers);
+router.get('/api/barbers', requireAdminAuth, requirePermission('barbers', 'read'), barberController.getBarbersApi);
 
 // Service management routes
-router.get('/services', requireAdminAuth, requirePermission('services', 'read'), adminController.showServices);
+router.get('/services', requireAdminAuth, requirePermission('services', 'read'), serviceController.showServices);
+router.get('/api/services', requireAdminAuth, requirePermission('services', 'read'), serviceController.getServicesApi);
 
 // Appointment management routes
-router.get('/appointments', requireAdminAuth, requirePermission('appointments', 'read'), adminController.showAppointments);
-router.put('/api/appointments/:id/status', requireAdminAuth, requirePermission('appointments', 'write'), adminController.updateAppointmentStatus);
+router.get('/appointments', requireAdminAuth, requirePermission('appointments', 'read'), appointmentController.showAppointments);
+router.get('/api/appointments', requireAdminAuth, requirePermission('appointments', 'read'), appointmentController.getAppointmentsApi);
+router.put('/api/appointments/:id/status', requireAdminAuth, requirePermission('appointments', 'write'), appointmentController.updateAppointmentStatus);
+// Missing routes from original controller that I should have added:
+// createAppointment, getAppointment, updateAppointment, deleteAppointment
+// I added them to appointmentController.js.
+router.post('/api/appointments', requireAdminAuth, requirePermission('appointments', 'write'), appointmentController.createAppointment);
+router.get('/api/appointments/:id', requireAdminAuth, requirePermission('appointments', 'read'), appointmentController.getAppointment);
+router.put('/api/appointments/:id', requireAdminAuth, requirePermission('appointments', 'write'), appointmentController.updateAppointment);
+router.delete('/api/appointments/:id', requireAdminAuth, requirePermission('appointments', 'delete'), appointmentController.deleteAppointment);
+
 
 // Rating management routes
-router.get('/ratings', requireAdminAuth, requirePermission('ratings', 'read'), adminController.showRatings);
-router.put('/api/ratings/:id/approval', requireAdminAuth, requirePermission('ratings', 'write'), adminController.updateRatingApproval);
+router.get('/ratings', requireAdminAuth, requirePermission('ratings', 'read'), ratingController.showRatings);
+router.get('/api/ratings', requireAdminAuth, requirePermission('ratings', 'read'), ratingController.getRatingsApi);
+router.put('/api/ratings/:id/approval', requireAdminAuth, requirePermission('ratings', 'write'), ratingController.updateRatingApproval);
 
 // Profile routes
-router.get('/profile', requireAdminAuth, adminController.showProfile);
-router.put('/api/profile', requireAdminAuth, adminController.updateProfile);
+router.get('/profile', requireAdminAuth, userController.showProfile);
+router.put('/api/profile', requireAdminAuth, userController.updateProfile);
 
-// Reports routes
+// Reports routes (Still inline as they were simple renders)
 router.get('/reports', requireAdminAuth, requirePermission('reports', 'read'), (req, res) => {
     res.render('admin/reports', {
         title: 'Reports - Classic Cuts',
@@ -51,259 +115,6 @@ router.get('/settings', requireAdminAuth, requirePermission('settings', 'read'),
         title: 'Settings - Classic Cuts',
         layout: 'admin-layout',
         admin: req.session.admin
-    });
-});
-
-// API routes for admin management
-router.get('/api/admins', requireAdminAuth, requirePermission('admin_users', 'read'), async (req, res) => {
-    try {
-        const admins = await AdminUser.findAll({
-            attributes: { exclude: ['password'] },
-            order: [['created_at', 'DESC']]
-        });
-        res.json({ success: true, data: admins });
-    } catch (error) {
-        console.error('Get admins API error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch admins' });
-    }
-});
-
-router.post('/api/admins', requireAdminAuth, requirePermission('admin_users', 'write'), async (req, res) => {
-    try {
-        const { username, email, password, first_name, last_name, role, permissions } = req.body;
-        
-        const existingAdmin = await AdminUser.findOne({
-            where: { [Op.or]: [{ username }, { email }] }
-        });
-
-        if (existingAdmin) {
-            return res.status(400).json({ success: false, error: 'Username or email already exists' });
-        }
-
-        const admin = await AdminUser.create({
-            username,
-            email,
-            password,
-            first_name,
-            last_name,
-            role,
-            permissions: permissions || [],
-            is_active: true
-        });
-
-        res.json({ success: true, message: 'Admin created successfully', data: admin });
-    } catch (error) {
-        console.error('Create admin API error:', error);
-        res.status(500).json({ success: false, error: 'Failed to create admin' });
-    }
-});
-
-router.put('/api/admins/:id', requireAdminAuth, requirePermission('admin_users', 'write'), async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { first_name, last_name, email, role, permissions, is_active } = req.body;
-
-        const admin = await AdminUser.findByPk(id);
-        if (!admin) {
-            return res.status(404).json({ success: false, error: 'Admin not found' });
-        }
-
-        await admin.update({
-            first_name,
-            last_name,
-            email,
-            role,
-            permissions: permissions || admin.permissions,
-            is_active: is_active !== undefined ? is_active : admin.is_active
-        });
-
-        res.json({ success: true, message: 'Admin updated successfully' });
-    } catch (error) {
-        console.error('Update admin API error:', error);
-        res.status(500).json({ success: false, error: 'Failed to update admin' });
-    }
-});
-
-router.delete('/api/admins/:id', requireAdminAuth, requirePermission('admin_users', 'delete'), async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        // Prevent self-deletion
-        if (parseInt(id) === req.session.admin.id) {
-            return res.status(400).json({ success: false, error: 'Cannot delete your own account' });
-        }
-
-        const admin = await AdminUser.findByPk(id);
-        if (!admin) {
-            return res.status(404).json({ success: false, error: 'Admin not found' });
-        }
-
-        await admin.destroy();
-        res.json({ success: true, message: 'Admin deleted successfully' });
-    } catch (error) {
-        console.error('Delete admin API error:', error);
-        res.status(500).json({ success: false, error: 'Failed to delete admin' });
-    }
-});
-
-// API routes for customer management
-router.get('/api/customers', requireAdminAuth, requirePermission('customers', 'read'), async (req, res) => {
-    try {
-        const { page = 1, limit = 10, search = '' } = req.query;
-        const offset = (page - 1) * limit;
-
-        const where = search ? {
-            [Op.or]: [
-                { first_name: { [Op.like]: `%${search}%` } },
-                { last_name: { [Op.like]: `%${search}%` } },
-                { email: { [Op.like]: `%${search}%` } }
-            ]
-        } : {};
-
-        const { count, rows: customers } = await Customer.findAndCountAll({
-            where,
-            order: [['created_at', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
-        });
-
-        res.json({
-            success: true,
-            data: customers,
-            pagination: {
-                currentPage: parseInt(page),
-                totalPages: Math.ceil(count / limit),
-                totalItems: count
-            }
-        });
-    } catch (error) {
-        console.error('Get customers API error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch customers' });
-    }
-});
-
-// API routes for barber management
-router.get('/api/barbers', requireAdminAuth, requirePermission('barbers', 'read'), async (req, res) => {
-    try {
-        const barbers = await Barber.findAll({
-            order: [['name', 'ASC']]
-        });
-        res.json({ success: true, data: barbers });
-    } catch (error) {
-        console.error('Get barbers API error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch barbers' });
-    }
-});
-
-// API routes for service management
-router.get('/api/services', requireAdminAuth, requirePermission('services', 'read'), async (req, res) => {
-    try {
-        const services = await Service.findAll({
-            order: [['name', 'ASC']]
-        });
-        res.json({ success: true, data: services });
-    } catch (error) {
-        console.error('Get services API error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch services' });
-    }
-});
-
-// API routes for appointment management
-router.get('/api/appointments', requireAdminAuth, requirePermission('appointments', 'read'), async (req, res) => {
-    try {
-        const { status, page = 1, limit = 10, date } = req.query;
-        const offset = (page - 1) * limit;
-
-        const where = {};
-        if (status && status !== 'all') where.status = status;
-        if (date) {
-            const startDate = new Date(date);
-            const endDate = new Date(date);
-            endDate.setDate(endDate.getDate() + 1);
-            where.appointment_date = { [Op.between]: [startDate, endDate] };
-        }
-
-        const { count, rows: appointments } = await Appointment.findAndCountAll({
-            where,
-            include: [
-                { model: Customer, as: 'customer' },
-                { model: Service, as: 'service' },
-                { model: Barber, as: 'barber' }
-            ],
-            order: [['appointment_date', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
-        });
-
-        res.json({
-            success: true,
-            data: appointments,
-            pagination: {
-                currentPage: parseInt(page),
-                totalPages: Math.ceil(count / limit),
-                totalItems: count
-            }
-        });
-    } catch (error) {
-        console.error('Get appointments API error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch appointments' });
-    }
-});
-
-// API routes for rating management
-router.get('/api/ratings', requireAdminAuth, requirePermission('ratings', 'read'), async (req, res) => {
-    try {
-        const { approved, page = 1, limit = 10 } = req.query;
-        const offset = (page - 1) * limit;
-
-        const where = {};
-        if (approved !== undefined) where.is_approved = approved === 'true';
-
-        const { count, rows: ratings } = await Rating.findAndCountAll({
-            where,
-            include: [
-                { model: Customer, as: 'customer' },
-                { model: Barber, as: 'barber' },
-                { 
-                    model: Appointment, 
-                    as: 'appointment',
-                    include: [{ model: Service, as: 'service' }]
-                }
-            ],
-            order: [['created_at', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
-        });
-
-        res.json({
-            success: true,
-            data: ratings,
-            pagination: {
-                currentPage: parseInt(page),
-                totalPages: Math.ceil(count / limit),
-                totalItems: count
-            }
-        });
-    } catch (error) {
-        console.error('Get ratings API error:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch ratings' });
-    }
-});
-router.post('/admins', adminController.createAdmin);
-router.put('/admins/:id/status', adminController.updateAdminStatus);
-router.delete('/admins/:id', adminController.deleteAdmin);
-
-// Debug route to check session (remove in production)
-router.get('/debug-session', (req, res) => {
-    console.log('🔍 Admin Session Debug:', {
-        adminSession: req.session.admin,
-        userSession: req.session.user,
-        sessionId: req.sessionID
-    });
-    res.json({
-        admin: req.session.admin,
-        user: req.session.user,
-        sessionId: req.sessionID
     });
 });
 
